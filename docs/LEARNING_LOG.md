@@ -340,3 +340,35 @@ If failure happens after text has streamed, the error event follows the partial 
 Client disconnects are not reported as provider failures. The response's `close` event aborts the shared signal, and every write checks the signal and response state first. This avoids attempting to send completion or error events to a closed connection.
 
 The tests exercise the real HTTP and SSE boundary using a temporary local port. This provides more confidence than testing helper functions alone while remaining fast and independent of external services.
+
+## 2026-09-02 — Proving the model boundary with a second provider
+
+Adding OpenAI was the practical test of whether `StreamingTextModel` was genuinely provider-neutral. The support-domain code and HTTP streaming route did not change. Only a new adapter and one provider registration were required:
+
+```text
+TextPrompt
+  -> OpenAIStreamingTextModel
+  -> OpenAI Responses API event stream
+  -> response.output_text.delta
+  -> AsyncIterable<string>
+```
+
+The adapter uses the OpenAI Responses API with `stream: true`. OpenAI emits lifecycle, output-item, and text events, but the application needs only generated text. A runtime type guard filters for `response.output_text.delta` and verifies that `delta` is a string before yielding it.
+
+The adapter also sends `store: false` and applies a default `max_output_tokens` value of 500. The output limit bounds an individual response; it is not a complete spending limit because the number and size of requests must also be controlled. Fixture mode therefore remains the default, and remote providers must be selected explicitly.
+
+Constructor injection keeps the adapter test independent of the network:
+
+```ts
+createOpenAIStreamingTextModel({
+  apiKey: "test-key",
+  model: "test-model",
+  requestStream: fakeRequestStream,
+});
+```
+
+The fake stream includes both lifecycle events and text-delta events. Tests prove that only text is yielded, the abort signal reaches the SDK boundary, request options are translated correctly, and provider failures propagate to the server's sanitized error handling.
+
+Provider selection remains lazy. Choosing `fixture` initializes neither remote SDK client; choosing `openai` creates only the OpenAI adapter; choosing `anthropic` creates only the Anthropic adapter. This matters for both clean configuration and cost safety.
+
+This addition demonstrates the difference between an abstraction and an inheritance hierarchy. Neither provider adapter extends a `BaseModel`. Both independently satisfy the small `StreamingTextModel` capability, while provider-specific request and event details stay inside their respective files. Swapping providers is composition at startup rather than branching throughout the application.

@@ -26,19 +26,19 @@ The goal is not merely to call a model API. The goal is to make provisional mode
 
 ## Current status
 
-The repository currently contains a working deterministic vertical slice:
+The repository currently contains a working vertical slice:
 
 - Four synthetic customer-support tickets
 - A React and strict TypeScript interface
 - A separate Node API process
 - A typed server-sent event protocol
-- Simulated incremental reply generation
+- Deterministic or model-backed incremental reply generation
 - Request cancellation and stale-response protection
 - Editing and approval of partial or completed drafts
 - Milestone-only screen-reader status messages
 - Unit tests for reducer behavior, stream parsing, and ticket selection
 
-The deterministic generator is intentional. It makes the interaction reproducible, keeps automated tests independent of an external service, and establishes the boundary that a real model adapter will use later.
+The deterministic generator remains the default. It makes the interaction reproducible and keeps routine development and automated tests independent of external services. Anthropic and OpenAI adapters can be selected explicitly for model-backed generation.
 
 ## Architecture
 
@@ -53,8 +53,8 @@ Node API
   -> support reply generator
      -> deterministic fixture implementation (default)
      -> prompt builder + streaming text model
-        -> Anthropic adapter (available, not connected)
-        -> additional model adapters (planned)
+        -> Anthropic adapter
+        -> OpenAI Responses API adapter
   -> emits start, delta, complete, or error events
 ```
 
@@ -82,6 +82,16 @@ API:    http://127.0.0.1:8787
 
 No API key is required for the deterministic stream.
 
+To select a remote provider, copy `.env.example` to a git-ignored `.env` and set:
+
+```dotenv
+DRAFT_PROVIDER=openai
+MODEL_NAME=<model-available-to-your-project>
+MODEL_API_KEY=<your-project-api-key>
+```
+
+Use `DRAFT_PROVIDER=anthropic` for the Anthropic adapter. Keep secrets in `.env`, never commit them, and return to `fixture` mode when model-backed generation is not needed.
+
 ## Verify
 
 ```bash
@@ -96,7 +106,7 @@ npm run build
 
 - Harden keyboard and focus behavior with browser-level tests
 - Buffer visual updates when reduced motion is requested
-- Connect a real model adapter through the provider-neutral support reply interface
+- Add application-level request and token budgets for model-backed generation
 - Test repeated cancellation for orphaned requests and late updates
 - Document VoiceOver/Safari and NVDA/Firefox behavior
 - Publish an accessibility writeup and short demonstration
