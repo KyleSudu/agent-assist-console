@@ -312,3 +312,31 @@ This is the point where the layers become executable rather than merely conceptu
 Both `MODEL_API_KEY` and `MODEL_NAME` are required for remote providers. Making the model name explicit improves reproducibility and allows changing models without modifying source code. The fixture factory and remote factories remain lazy, so fixture mode never initializes the Anthropic client.
 
 The composition test injects a fake `StreamingTextModel` and verifies the entire handoff from ticket to prompt to streamed model text without making a network request.
+
+## 2026-09-02 — Treating stream failures as protocol events
+
+The HTTP request handling was extracted into `createAgentAssistServer`, which accepts a `SupportReplyGenerator`. The production entry point now handles only configuration, dependency composition, and listening on a port. Tests can start the same server on an ephemeral port with controlled generator implementations.
+
+Model streaming can fail before output, after partial output, or because the user disconnected. Those cases now have distinct behavior:
+
+```text
+successful stream  -> start, delta..., complete
+provider failure   -> start, optional delta..., error
+client disconnect  -> abort generation and stop writing
+```
+
+Provider failures are reported on the server, but the browser receives a stable, sanitized message. This prevents SDK errors, request identifiers, or other internal details from leaking into the UI:
+
+```ts
+{
+  type: "error",
+  requestId,
+  message: "The suggested reply could not be generated.",
+}
+```
+
+If failure happens after text has streamed, the error event follows the partial deltas and no `complete` event is sent. The reducer already retains the partial draft when entering its error state, so useful work is not discarded.
+
+Client disconnects are not reported as provider failures. The response's `close` event aborts the shared signal, and every write checks the signal and response state first. This avoids attempting to send completion or error events to a closed connection.
+
+The tests exercise the real HTTP and SSE boundary using a temporary local port. This provides more confidence than testing helper functions alone while remaining fast and independent of external services.
