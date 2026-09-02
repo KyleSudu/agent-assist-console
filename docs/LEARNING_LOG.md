@@ -144,3 +144,35 @@ This separates two concerns:
 Defaulting to `fixture` keeps local development and automated tests deterministic and free. Selecting `anthropic` without a key fails immediately during startup with a useful configuration error. Unknown modes and invalid ports are also rejected instead of being allowed to fail later in less obvious ways.
 
 At this intermediate step, the server deliberately rejects `anthropic` mode even when a key is present because the adapter has not been connected yet. This prevents a misleading state where configuration claims to use a model but the server silently continues returning fixtures.
+
+### Step 3: Make the harness provider-neutral
+
+The first configuration used Anthropic-specific names. Before adding an SDK, that decision was revisited so the surrounding harness would not assume one vendor:
+
+```env
+DRAFT_PROVIDER=fixture
+MODEL_NAME=
+MODEL_API_KEY=
+```
+
+Provider selection now happens through a registry of lazy factories:
+
+```ts
+const draftGenerator = selectDraftGenerator(config.draftProvider, {
+  fixture: createFixtureDraftGenerator,
+});
+```
+
+When more adapters exist, they can be registered without changing the HTTP route or browser contract:
+
+```ts
+const draftGenerator = selectDraftGenerator(config.draftProvider, {
+  fixture: createFixtureDraftGenerator,
+  anthropic: createAnthropicDraftGenerator,
+  openai: createOpenAIDraftGenerator,
+});
+```
+
+Factories are lazy, so only the selected provider is initialized. This avoids requiring every provider's credentials and client setup during startup. Unknown providers fail directly rather than silently falling back to fixtures.
+
+The provider interface is generic, but adapters are still allowed to use provider-specific SDKs internally. The goal is not to erase real differences between APIs; it is to contain those differences behind the `DraftGenerator` boundary.

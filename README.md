@@ -46,8 +46,9 @@ React interface
 
 Node API
   -> validates the ticket and request id
-  -> deterministic generator (current)
-  -> Anthropic generator (planned)
+  -> provider-neutral draft generator interface
+  -> deterministic fixture adapter (current)
+  -> remote model adapters (planned)
   -> emits start, delta, complete, or error events
 ```
 
@@ -89,7 +90,7 @@ npm run build
 
 - Harden keyboard and focus behavior with browser-level tests
 - Buffer visual updates when reduced motion is requested
-- Add a real Anthropic adapter behind the existing generator interface
+- Add a real model adapter behind the existing provider-neutral generator interface
 - Test repeated cancellation for orphaned requests and late updates
 - Document VoiceOver/Safari and NVDA/Firefox behavior
 - Publish an accessibility writeup and short demonstration

@@ -1,9 +1,8 @@
-export type DraftGeneratorMode = "fixture" | "anthropic";
-
 export type ServerConfig = {
   port: number;
-  draftGeneratorMode: DraftGeneratorMode;
-  anthropicApiKey?: string;
+  draftProvider: string;
+  modelName?: string;
+  modelApiKey?: string;
 };
 
 type Environment = Record<string, string | undefined>;
@@ -16,25 +15,19 @@ const readPort = (value: string | undefined): number => {
   return port;
 };
 
-const readDraftGeneratorMode = (value: string | undefined): DraftGeneratorMode => {
-  const mode = value ?? "fixture";
-  if (mode !== "fixture" && mode !== "anthropic") {
-    throw new Error('DRAFT_GENERATOR must be either "fixture" or "anthropic"');
-  }
-  return mode;
-};
-
 export const loadServerConfig = (environment: Environment = process.env): ServerConfig => {
-  const draftGeneratorMode = readDraftGeneratorMode(environment.DRAFT_GENERATOR);
-  const anthropicApiKey = environment.ANTHROPIC_API_KEY?.trim() || undefined;
+  const draftProvider = environment.DRAFT_PROVIDER?.trim() || "fixture";
+  const modelName = environment.MODEL_NAME?.trim() || undefined;
+  const modelApiKey = environment.MODEL_API_KEY?.trim() || undefined;
 
-  if (draftGeneratorMode === "anthropic" && !anthropicApiKey) {
-    throw new Error("ANTHROPIC_API_KEY is required when DRAFT_GENERATOR=anthropic");
+  if (draftProvider !== "fixture" && !modelApiKey) {
+    throw new Error("MODEL_API_KEY is required when a remote draft provider is selected");
   }
 
   return {
     port: readPort(environment.PORT),
-    draftGeneratorMode,
-    anthropicApiKey,
+    draftProvider,
+    modelName,
+    modelApiKey,
   };
 };

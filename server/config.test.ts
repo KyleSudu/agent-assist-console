@@ -5,33 +5,35 @@ describe("loadServerConfig", () => {
   it("defaults to the fixture generator without requiring secrets", () => {
     expect(loadServerConfig({})).toEqual({
       port: 8787,
-      draftGeneratorMode: "fixture",
-      anthropicApiKey: undefined,
+      draftProvider: "fixture",
+      modelName: undefined,
+      modelApiKey: undefined,
     });
   });
 
-  it("requires an API key when Anthropic generation is selected", () => {
-    expect(() => loadServerConfig({ DRAFT_GENERATOR: "anthropic" })).toThrow(
-      "ANTHROPIC_API_KEY is required",
+  it("requires an API key when a remote provider is selected", () => {
+    expect(() => loadServerConfig({ DRAFT_PROVIDER: "anthropic" })).toThrow(
+      "MODEL_API_KEY is required",
     );
   });
 
-  it("accepts explicit Anthropic configuration", () => {
+  it("accepts provider-neutral model configuration", () => {
     expect(
       loadServerConfig({
         PORT: "9000",
-        DRAFT_GENERATOR: "anthropic",
-        ANTHROPIC_API_KEY: " test-key ",
+        DRAFT_PROVIDER: "anthropic",
+        MODEL_NAME: " model-name ",
+        MODEL_API_KEY: " test-key ",
       }),
     ).toEqual({
       port: 9000,
-      draftGeneratorMode: "anthropic",
-      anthropicApiKey: "test-key",
+      draftProvider: "anthropic",
+      modelName: "model-name",
+      modelApiKey: "test-key",
     });
   });
 
-  it("rejects unknown generator modes and invalid ports", () => {
-    expect(() => loadServerConfig({ DRAFT_GENERATOR: "automatic" })).toThrow("DRAFT_GENERATOR");
+  it("rejects invalid ports", () => {
     expect(() => loadServerConfig({ PORT: "0" })).toThrow("PORT");
   });
 });
