@@ -4,7 +4,7 @@ import {
   createOpenAIStreamingTextModel,
   type StreamingTextModel,
 } from "../models";
-import { createFixtureSupportReplyGenerator } from "./fixtureSupportReplyGenerator";
+import { createFixtureSupportReplyGenerator } from "./Fixture";
 import { createModelSupportReplyGenerator } from "./modelSupportReplyGenerator";
 import { selectSupportReplyGenerator } from "./selectSupportReplyGenerator";
 import type { SupportReplyGenerator } from "./types";
@@ -22,6 +22,9 @@ const requireRemoteModelConfig = (config: ServerConfig) => {
   return { apiKey: config.modelApiKey, model: config.modelName };
 };
 
+/**
+ * Composes the configured support-reply implementation from provider-neutral domain logic and a selected runtime adapter. Provider factories are lazy, so unused SDK clients are never initialized.
+ */
 export const createConfiguredSupportReplyGenerator = (
   config: ServerConfig,
   {

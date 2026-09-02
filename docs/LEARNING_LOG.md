@@ -394,3 +394,9 @@ models/
 The shared `StreamingTextModel` contract stays at the models root because it belongs to neither provider. The root `index.ts` is the public boundary used by the rest of the server, while each provider's `index.ts` makes its folder independently navigable and keeps tests beside the code they exercise.
 
 This structure adds a little ceremony, but it scales predictably: adding another provider means adding another self-contained folder and one root export rather than expanding a mixed directory of similarly named files.
+
+### Naming the domain layer by capability
+
+The server's `generation` folder was renamed to `supportReplies`. Although the old name was technically accurate, it did not reveal whether the files generated UI content, test data, or model output. The new name identifies the business capability owned by the folder.
+
+The deterministic generator moved into its own `Fixture` folder with its test and export. It is a runtime implementation—not test scaffolding—because the application deliberately uses it for free, reproducible local development. The shared support-reply contract, prompt builder, model-backed bridge, and provider composition remain at the `supportReplies` root because they apply across implementations.

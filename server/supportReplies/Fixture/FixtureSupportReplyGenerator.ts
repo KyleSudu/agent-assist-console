@@ -1,5 +1,5 @@
 import type { Ticket } from "shared";
-import type { SupportReplyGenerator } from "./types";
+import type { SupportReplyGenerator } from "../types";
 
 const fixtureReplies: Record<string, string> = {
   "billing-duplicate-charge":
@@ -19,6 +19,9 @@ type FixtureSupportReplyGeneratorOptions = {
 const wait = (delayMs: number) =>
   delayMs > 0 ? new Promise((resolve) => setTimeout(resolve, delayMs)) : Promise.resolve();
 
+/**
+ * Creates the deterministic, offline reply generator used for development and tests. It streams known synthetic replies without initializing or billing a remote model provider.
+ */
 export const createFixtureSupportReplyGenerator = ({
   delayMs = 90,
 }: FixtureSupportReplyGeneratorOptions = {}): SupportReplyGenerator => ({

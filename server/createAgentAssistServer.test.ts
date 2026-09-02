@@ -1,6 +1,6 @@
 import type { Server } from "node:http";
 import type { AddressInfo } from "node:net";
-import type { SupportReplyGenerator } from "./generation";
+import type { SupportReplyGenerator } from "./supportReplies";
 import { createSseParser } from "streaming";
 import { afterEach, describe, expect, it, vi } from "vitest";
 import { createAgentAssistServer } from "./createAgentAssistServer";

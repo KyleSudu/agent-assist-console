@@ -1,7 +1,7 @@
 import "dotenv/config";
 import { loadServerConfig } from "./config";
 import { createAgentAssistServer } from "./createAgentAssistServer";
-import { createConfiguredSupportReplyGenerator } from "./generation";
+import { createConfiguredSupportReplyGenerator } from "./supportReplies";
 
 const config = loadServerConfig();
 const supportReplyGenerator = createConfiguredSupportReplyGenerator(config);

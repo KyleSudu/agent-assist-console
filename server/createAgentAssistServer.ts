@@ -1,5 +1,5 @@
 import { createServer, type IncomingMessage, type ServerResponse } from "node:http";
-import type { SupportReplyGenerator } from "./generation";
+import type { SupportReplyGenerator } from "./supportReplies";
 import { getTicket, type DraftStreamEvent, type GenerateDraftRequest } from "shared";
 
 type AgentAssistServerOptions = {
