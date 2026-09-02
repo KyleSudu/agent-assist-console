@@ -400,3 +400,44 @@ This structure adds a little ceremony, but it scales predictably: adding another
 The server's `generation` folder was renamed to `supportReplies`. Although the old name was technically accurate, it did not reveal whether the files generated UI content, test data, or model output. The new name identifies the business capability owned by the folder.
 
 The deterministic generator moved into its own `Fixture` folder with its test and export. It is a runtime implementation—not test scaffolding—because the application deliberately uses it for free, reproducible local development. The shared support-reply contract, prompt builder, model-backed bridge, and provider composition remain at the `supportReplies` root because they apply across implementations.
+
+## 2026-09-02 — Buffering streams for reduced motion
+
+The existing reduced-motion CSS removed transitions and animations, but it did not change the most active visual behavior: every model delta still repainted the textarea. A stream of tiny text changes can resemble a typewriter effect even when no CSS animation is involved.
+
+The implementation separates three responsibilities:
+
+```text
+usePrefersReducedMotion
+  -> observes the operating-system preference
+
+createDraftDeltaBuffer
+  -> groups provider-neutral text deltas
+
+useDraftWorkspace
+  -> chooses immediate or buffered state updates
+```
+
+`usePrefersReducedMotion` uses React's `useSyncExternalStore`. A media query is state owned by the browser, so subscribing to its snapshots is a better fit than copying its value into `useState` from an effect. The initial effect-based implementation worked in tests, but lint correctly identified the unnecessary synchronous state update and extra render.
+
+The delta buffer is plain TypeScript rather than a hook. It emits text at the last completed sentence boundary or after a one-second maximum wait. Splitting at the last boundary lets it flush complete prose while retaining an unfinished tail:
+
+```text
+pending: "First sentence. Part"
+flush:   "First sentence."
+retain:  " Part"
+```
+
+The timer prevents a long sentence from leaving the visual interface blank indefinitely. A sentence boundary produces meaningful, less-frequent visual updates; the timer is the fallback for model output without punctuation.
+
+Stream lifecycle events need deliberate buffer behavior:
+
+```text
+complete / stop / error  -> flush pending text first
+new request / unmount    -> clear pending text and timer
+reduced motion disabled  -> flush, then resume immediate deltas
+```
+
+Flushing before Stop is especially important. The server may already have delivered text that has not reached React state yet; discarding the buffer would violate the promise that cancellation retains the partial draft.
+
+The screen-reader strategy remains unchanged. The textarea receives either immediate or buffered visual text, while the ARIA live region announces only lifecycle milestones such as generation starting, stopping, or becoming ready. Reduced motion changes visual update frequency without turning provisional model output into a spoken transcript.

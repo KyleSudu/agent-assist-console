@@ -34,6 +34,7 @@ The repository currently contains a working vertical slice:
 - A typed server-sent event protocol
 - Deterministic or model-backed incremental reply generation
 - Request cancellation and stale-response protection
+- Sentence- and time-buffered visual updates when reduced motion is preferred
 - Editing and approval of partial or completed drafts
 - Milestone-only screen-reader status messages
 - Unit tests for reducer behavior, stream parsing, and ticket selection
@@ -105,7 +106,6 @@ npm run build
 ### v0 - accessible generative streaming
 
 - Harden keyboard and focus behavior with browser-level tests
-- Buffer visual updates when reduced motion is requested
 - Add application-level request and token budgets for model-backed generation
 - Test repeated cancellation for orphaned requests and late updates
 - Document VoiceOver/Safari and NVDA/Firefox behavior
