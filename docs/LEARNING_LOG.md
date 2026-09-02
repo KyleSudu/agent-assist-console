@@ -182,3 +182,22 @@ The provider interface is generic, but adapters are still allowed to use provide
 The README now includes a screenshot captured from the running local application while a reply is actively streaming. The streaming state was chosen instead of the initial empty state because it communicates the central interaction at a glance: partial model output is visible, approval is unavailable, ticket selection is locked, and a keyboard-focusable Stop action remains available.
 
 The image uses only synthetic ticket and response content. Keeping the screenshot in `docs/images` makes it versioned with the UI it represents and allows GitHub to render it without relying on an external image host.
+
+## 2026-09-02 — Building a provider-neutral prompt
+
+Prompt construction now has its own provider-independent boundary:
+
+```ts
+type DraftPrompt = {
+  instructions: string;
+  input: string;
+};
+```
+
+The distinction mirrors the roles supported by common model APIs. Stable application instructions describe the task and safety constraints, while the changing ticket content is passed separately as input. Each provider adapter will translate these two values into its own SDK request format.
+
+The prompt explicitly labels ticket text as untrusted data. A customer could write something that resembles an instruction, such as “ignore your rules,” but that text should remain content to answer rather than behavior for the model to adopt.
+
+Ticket fields are serialized as JSON instead of interpolated into a hand-built pseudo-format. JSON does not eliminate prompt injection, but it provides an unambiguous data boundary and correctly escapes quotes and newlines. The internal ticket ID is omitted because the model does not need it to draft the reply.
+
+The instructions also prohibit invented account actions, policy claims, and guarantees. This is important in support tooling: a fluent but unsupported claim that a refund was issued can be more harmful than an obviously incomplete draft. The human approval step remains necessary even with these instructions.
