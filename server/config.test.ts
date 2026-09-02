@@ -27,13 +27,13 @@ describe("loadServerConfig", () => {
     expect(
       loadServerConfig({
         PORT: "9000",
-        DRAFT_PROVIDER: "anthropic",
+        DRAFT_PROVIDER: "openai",
         MODEL_NAME: " model-name ",
         MODEL_API_KEY: " test-key ",
       }),
     ).toEqual({
       port: 9000,
-      draftProvider: "anthropic",
+      draftProvider: "openai",
       modelName: "model-name",
       modelApiKey: "test-key",
     });
