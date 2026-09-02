@@ -100,3 +100,29 @@ No test calls a real network service. The eventual LLM adapter will also be repl
 ### Verification
 
 The completed refactor passed formatting, linting, strict TypeScript checking, all 22 automated tests, and the production build. The test suite increased from 17 to 22 tests because transport failures and the new public workspace API are now covered independently.
+
+## 2026-09-02 — Preparing the server for a real model
+
+### Step 1: Define the generator boundary
+
+Before installing a model SDK, the deterministic implementation was moved behind a `DraftGenerator` contract:
+
+```ts
+type DraftGenerator = {
+  generate: (ticket: Ticket, options: GenerateDraftOptions) => AsyncIterable<string>;
+};
+```
+
+An `AsyncIterable<string>` is a useful representation for generation because the server can consume deterministic chunks and future model tokens with the same `for await...of` loop:
+
+```ts
+for await (const text of draftGenerator.generate(ticket, { signal })) {
+  sendEvent(response, { type: "delta", requestId, text });
+}
+```
+
+The HTTP route no longer knows where the text originates. Its responsibilities are limited to validating the request, translating generated text into the browser-facing event contract, and stopping work when the client disconnects.
+
+The fixture generator remains the only implementation at this step. It accepts a configurable delay so the interface can stream realistically in the app and run instantly in unit tests.
+
+Cancellation is represented by a standard `AbortSignal`. This matters for the next implementation because the same signal can be forwarded to an external model SDK rather than inventing a custom cancellation mechanism.
