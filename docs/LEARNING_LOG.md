@@ -126,3 +126,21 @@ The HTTP route no longer knows where the text originates. Its responsibilities a
 The fixture generator remains the only implementation at this step. It accepts a configurable delay so the interface can stream realistically in the app and run instantly in unit tests.
 
 Cancellation is represented by a standard `AbortSignal`. This matters for the next implementation because the same signal can be forwarded to an external model SDK rather than inventing a custom cancellation mechanism.
+
+### Step 2: Separate secrets from runtime selection
+
+The server now loads local values from `.env`, but possession of an API key does not automatically enable external model calls. Model selection is explicit:
+
+```env
+DRAFT_GENERATOR=fixture
+ANTHROPIC_API_KEY=
+```
+
+This separates two concerns:
+
+- `ANTHROPIC_API_KEY` answers whether the server has credentials.
+- `DRAFT_GENERATOR` answers which implementation the developer intends to run.
+
+Defaulting to `fixture` keeps local development and automated tests deterministic and free. Selecting `anthropic` without a key fails immediately during startup with a useful configuration error. Unknown modes and invalid ports are also rejected instead of being allowed to fail later in less obvious ways.
+
+At this intermediate step, the server deliberately rejects `anthropic` mode even when a key is present because the adapter has not been connected yet. This prevents a misleading state where configuration claims to use a model but the server silently continues returning fixtures.

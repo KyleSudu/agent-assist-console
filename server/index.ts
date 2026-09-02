@@ -1,8 +1,16 @@
+import "dotenv/config";
 import { createServer, type IncomingMessage, type ServerResponse } from "node:http";
 import { getTicket, type DraftStreamEvent, type GenerateDraftRequest } from "shared";
+import { loadServerConfig } from "./config";
 import { createFixtureDraftGenerator } from "./generation";
 
-const port = Number(process.env.PORT ?? 8787);
+const config = loadServerConfig();
+const port = config.port;
+
+if (config.draftGeneratorMode !== "fixture") {
+  throw new Error("Anthropic generation is configured but has not been connected yet");
+}
+
 const draftGenerator = createFixtureDraftGenerator();
 
 const readJson = async (request: IncomingMessage): Promise<unknown> => {

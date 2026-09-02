@@ -17,6 +17,7 @@
     "test:watch": "vitest"
   },
   "dependencies": {
+    "dotenv": "^17.4.2",
     "react": "latest",
     "react-dom": "latest"
   },
