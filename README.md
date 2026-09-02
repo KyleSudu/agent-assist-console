@@ -1,6 +1,8 @@
 # Accessible Agent-Assist Console
 
-A portfolio project exploring how a support-agent workstation should present streamed generative AI output to keyboard and screen-reader users.
+An independent technical prototype exploring how a support-agent workstation should present streamed generative AI output to keyboard and screen-reader users.
+
+> **Status:** Pre-v0 portfolio work. The project uses synthetic data and deterministic generation while the interaction model is being developed. It is not a production service and is not affiliated with any company or support platform.
 
 This is not a general chatbot. It is a narrow human-review workflow: an agent selects a synthetic support ticket, requests a suggested reply, interrupts the generation if needed, edits the result, and approves it.
 
