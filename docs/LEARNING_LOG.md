@@ -176,3 +176,9 @@ const draftGenerator = selectDraftGenerator(config.draftProvider, {
 Factories are lazy, so only the selected provider is initialized. This avoids requiring every provider's credentials and client setup during startup. Unknown providers fail directly rather than silently falling back to fixtures.
 
 The provider interface is generic, but adapters are still allowed to use provider-specific SDKs internally. The goal is not to erase real differences between APIs; it is to contain those differences behind the `DraftGenerator` boundary.
+
+## 2026-09-02 — Showing the interaction in the README
+
+The README now includes a screenshot captured from the running local application while a reply is actively streaming. The streaming state was chosen instead of the initial empty state because it communicates the central interaction at a glance: partial model output is visible, approval is unavailable, ticket selection is locked, and a keyboard-focusable Stop action remains available.
+
+The image uses only synthetic ticket and response content. Keeping the screenshot in `docs/images` makes it versioned with the UI it represents and allows GitHub to render it without relying on an external image host.
