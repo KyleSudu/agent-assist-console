@@ -201,3 +201,34 @@ The prompt explicitly labels ticket text as untrusted data. A customer could wri
 Ticket fields are serialized as JSON instead of interpolated into a hand-built pseudo-format. JSON does not eliminate prompt injection, but it provides an unambiguous data boundary and correctly escapes quotes and newlines. The internal ticket ID is omitted because the model does not need it to draft the reply.
 
 The instructions also prohibit invented account actions, policy claims, and guarantees. This is important in support tooling: a fluent but unsupported claim that a refund was issued can be more harmful than an obviously incomplete draft. The human approval step remains necessary even with these instructions.
+
+## 2026-09-02 — Implementing the first remote-model adapter
+
+The first remote adapter uses Anthropic's official TypeScript SDK, but the provider-specific code is contained in `createAnthropicDraftGenerator`. It implements the same `DraftGenerator` contract as the fixture adapter.
+
+Anthropic's SDK offers a higher-level streaming helper and a lower-level `messages.create({ stream: true })` API. The lower-level API was selected because it returns an async iterable of events without accumulating a complete response, which maps closely to this project's existing streaming design. See the SDK's [streaming documentation](https://github.com/anthropics/anthropic-sdk-typescript/blob/main/helpers.md#streaming-responses).
+
+The adapter translates the generic prompt into Anthropic's request shape:
+
+```ts
+{
+  model,
+  max_tokens: maxTokens,
+  system: prompt.instructions,
+  messages: [{ role: "user", content: prompt.input }],
+}
+```
+
+Anthropic streams several event types for message and content-block lifecycle changes. The generic application does not need those details, so the adapter yields only `content_block_delta` events whose delta type is `text_delta`:
+
+```ts
+if (event.type === "content_block_delta" && event.delta?.type === "text_delta") {
+  yield event.delta.text ?? "";
+}
+```
+
+The SDK's event union revealed that not every event containing a `delta` gives that value the same shape. Instead of weakening the code with a type assertion, the adapter treats the provider delta as `unknown` and uses a runtime guard before reading text. This keeps provider assumptions localized and ensures non-text events cannot accidentally enter the application stream.
+
+The adapter forwards the workspace's `AbortSignal` into the SDK request. Provider errors are allowed to propagate so the HTTP route can translate them into the application's existing error event instead of hiding failures inside the adapter.
+
+Tests inject a fake `requestStream` function. This exercises prompt translation, text-event filtering, cancellation wiring, and error propagation without loading credentials, making network calls, or incurring model costs.

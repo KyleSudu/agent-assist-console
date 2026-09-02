@@ -1,3 +1,5 @@
+export { createAnthropicDraftGenerator } from "./anthropicDraftGenerator";
+export type { RequestAnthropicStream } from "./anthropicDraftGenerator";
 export { buildDraftPrompt } from "./buildDraftPrompt";
 export type { DraftPrompt } from "./buildDraftPrompt";
 export { createFixtureDraftGenerator } from "./fixtureDraftGenerator";
