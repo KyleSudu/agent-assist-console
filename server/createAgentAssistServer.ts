@@ -28,6 +28,9 @@ const sendEvent = (response: ServerResponse, event: DraftStreamEvent) => {
   response.write(`event: ${event.type}\ndata: ${JSON.stringify(event)}\n\n`);
 };
 
+/**
+ * Creates the Agent Assist HTTP server around an injected reply generator. It validates draft requests, streams typed SSE events, and aborts generation when the client disconnects.
+ */
 export const createAgentAssistServer = ({
   supportReplyGenerator,
   reportError = console.error,
