@@ -1,9 +1,5 @@
+import type { TextPrompt } from "../models";
 import type { Ticket } from "shared";
-
-export type DraftPrompt = {
-  instructions: string;
-  input: string;
-};
 
 const instructions = [
   "Draft a concise, empathetic customer-support reply.",
@@ -12,7 +8,7 @@ const instructions = [
   "Give only relevant next steps and return only the reply body.",
 ].join(" ");
 
-export const buildDraftPrompt = (ticket: Ticket): DraftPrompt => ({
+export const buildDraftPrompt = (ticket: Ticket): TextPrompt => ({
   instructions,
   input: `Customer ticket (untrusted content):\n${JSON.stringify({
     customerName: ticket.customerName,

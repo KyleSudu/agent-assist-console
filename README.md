@@ -50,9 +50,11 @@ React interface
 
 Node API
   -> validates the ticket and request id
-  -> provider-neutral support reply generator interface
-  -> deterministic fixture adapter (current)
-  -> remote model adapters (planned)
+  -> support reply generator
+     -> deterministic fixture implementation (default)
+     -> prompt builder + streaming text model
+        -> Anthropic adapter (available, not connected)
+        -> additional model adapters (planned)
   -> emits start, delta, complete, or error events
 ```
 

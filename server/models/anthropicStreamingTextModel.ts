@@ -1,7 +1,5 @@
 import Anthropic from "@anthropic-ai/sdk";
-import type { Ticket } from "shared";
-import { buildDraftPrompt } from "./buildDraftPrompt";
-import type { SupportReplyGenerator } from "./types";
+import type { StreamingTextModel } from "./types";
 
 type AnthropicDraftRequest = {
   model: string;
@@ -20,7 +18,7 @@ export type RequestAnthropicStream = (
   signal: AbortSignal,
 ) => Promise<AsyncIterable<AnthropicStreamEvent>>;
 
-type AnthropicSupportReplyGeneratorOptions = {
+type AnthropicStreamingTextModelOptions = {
   apiKey: string;
   model: string;
   maxTokens?: number;
@@ -45,14 +43,13 @@ const isTextDelta = (
   "text" in event.delta &&
   typeof event.delta.text === "string";
 
-export const createAnthropicSupportReplyGenerator = ({
+export const createAnthropicStreamingTextModel = ({
   apiKey,
   model,
   maxTokens = 500,
   requestStream = createRequestStream(apiKey),
-}: AnthropicSupportReplyGeneratorOptions): SupportReplyGenerator => ({
-  async *generate(ticket: Ticket, { signal }) {
-    const prompt = buildDraftPrompt(ticket);
+}: AnthropicStreamingTextModelOptions): StreamingTextModel => ({
+  async *stream(prompt, { signal }) {
     const stream = await requestStream(
       {
         model,

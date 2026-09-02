@@ -253,3 +253,47 @@ createAnthropicSupportReplyGenerator(options): SupportReplyGenerator;
 ```
 
 The Anthropic SDK client does not inherit from `SupportReplyGenerator`; it has a different, provider-level responsibility. The Anthropic adapter wraps that client and translates between the SDK's event model and the application's domain contract.
+
+### Finding the missing layer: domain service versus model adapter
+
+The discussion about naming the interface `BaseModel` exposed a deeper issue. `SupportReplyGenerator` was domain-specific, but the Anthropic implementation was being treated as though it were also the domain service. That combined prompt construction with provider translation.
+
+The responsibilities are now separated:
+
+```text
+SupportReplyGenerator
+  -> converts a Ticket into a TextPrompt
+  -> delegates streaming to a StreamingTextModel
+
+StreamingTextModel
+  -> accepts provider-neutral instructions and input
+  -> streams generated text
+
+AnthropicStreamingTextModel
+  -> converts TextPrompt into an Anthropic request
+  -> filters Anthropic events into text chunks
+```
+
+The model-level contract is:
+
+```ts
+interface StreamingTextModel {
+  stream(prompt: TextPrompt, options: StreamTextOptions): AsyncIterable<string>;
+}
+```
+
+`BaseModel` was considered but rejected because “base” commonly implies an abstract class with shared implementation inherited by subclasses. These adapters share behavior, but not implementation or state. `StreamingTextModel` names the exact capability required by the application and allows either classes or factory-created objects to satisfy it through TypeScript's structural typing.
+
+The model-backed domain service is composed rather than inherited:
+
+```ts
+const createModelSupportReplyGenerator = (model: StreamingTextModel): SupportReplyGenerator => ({
+  generate(ticket, options) {
+    return model.stream(buildDraftPrompt(ticket), options);
+  },
+});
+```
+
+This creates two useful axes of change. Support prompt behavior can evolve without editing provider adapters, and model providers can be swapped without editing ticket-to-prompt logic.
+
+The fixture implementation intentionally remains a direct `SupportReplyGenerator`. It replaces the complete remote generation path with known ticket-specific replies, which is more useful for deterministic UI development than pretending to be a general-purpose language model.
