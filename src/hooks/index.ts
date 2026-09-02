@@ -1,1 +1,1 @@
-export { useDraftGeneration } from "./useDraftGeneration";
+export { useDraftWorkspace } from "./useDraftWorkspace";

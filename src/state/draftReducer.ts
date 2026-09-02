@@ -1,5 +1,3 @@
-import { tickets } from "shared";
-
 export type DraftPhase =
   "idle" | "streaming" | "stopped" | "ready" | "editing" | "approved" | "error";
 
@@ -21,13 +19,13 @@ export type DraftAction =
   | { type: "approve" }
   | { type: "error"; requestId: string };
 
-export const initialDraftState: DraftState = {
-  ticketId: tickets[0].id,
+export const createInitialDraftState = (ticketId: string): DraftState => ({
+  ticketId,
   phase: "idle",
   requestId: null,
   draft: "",
   announcement: "",
-};
+});
 
 const sentenceCount = (text: string) => text.match(/[.!?](?:\s|$)/g)?.length ?? 0;
 
@@ -36,7 +34,7 @@ const isStale = (state: DraftState, requestId: string) => state.requestId !== re
 export const draftReducer = (state: DraftState, action: DraftAction): DraftState => {
   switch (action.type) {
     case "select-ticket":
-      return { ...initialDraftState, ticketId: action.ticketId };
+      return createInitialDraftState(action.ticketId);
     case "start":
       return {
         ...state,

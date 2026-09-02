@@ -1,10 +1,10 @@
+import { streamDraft } from "api";
 import { useCallback, useEffect, useReducer, useRef } from "react";
-import type { DraftStreamEvent } from "shared";
-import { draftReducer, initialDraftState } from "state";
-import { createSseParser } from "streaming";
+import { tickets, type DraftStreamEvent } from "shared";
+import { createInitialDraftState, draftReducer } from "state";
 
-export const useDraftGeneration = () => {
-  const [state, dispatch] = useReducer(draftReducer, initialDraftState);
+export const useDraftWorkspace = () => {
+  const [state, dispatch] = useReducer(draftReducer, tickets[0].id, createInitialDraftState);
   const controllerRef = useRef<AbortController | null>(null);
 
   const handleEvent = useCallback((event: DraftStreamEvent) => {
@@ -14,7 +14,11 @@ export const useDraftGeneration = () => {
     if (event.type === "error") dispatch({ type: "error", requestId: event.requestId });
   }, []);
 
-  const generate = useCallback(async () => {
+  const selectTicket = useCallback((ticketId: string) => {
+    dispatch({ type: "select-ticket", ticketId });
+  }, []);
+
+  const generateDraft = useCallback(async () => {
     controllerRef.current?.abort();
     const controller = new AbortController();
     const requestId = crypto.randomUUID();
@@ -22,26 +26,12 @@ export const useDraftGeneration = () => {
     dispatch({ type: "start", requestId });
 
     try {
-      const response = await fetch("/api/drafts/stream", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ ticketId: state.ticketId, requestId }),
+      await streamDraft({
+        ticketId: state.ticketId,
+        requestId,
         signal: controller.signal,
+        onEvent: handleEvent,
       });
-
-      if (!response.ok || !response.body) throw new Error("Stream request failed");
-
-      const reader = response.body.getReader();
-      const decoder = new TextDecoder();
-      const parser = createSseParser();
-
-      while (true) {
-        const { done, value } = await reader.read();
-        if (done) break;
-        parser.push(decoder.decode(value, { stream: true })).forEach(handleEvent);
-      }
-      parser.push(decoder.decode()).forEach(handleEvent);
-      parser.flush().forEach(handleEvent);
     } catch (error) {
       if (!(error instanceof DOMException && error.name === "AbortError")) {
         dispatch({ type: "error", requestId });
@@ -51,7 +41,7 @@ export const useDraftGeneration = () => {
     }
   }, [handleEvent, state.ticketId]);
 
-  const stop = useCallback(() => {
+  const stopGeneration = useCallback(() => {
     if (!state.requestId) return;
     const requestId = state.requestId;
     controllerRef.current?.abort();
@@ -59,7 +49,22 @@ export const useDraftGeneration = () => {
     dispatch({ type: "stop", requestId });
   }, [state.requestId]);
 
+  const editDraft = useCallback((text: string) => {
+    dispatch({ type: "edit", text });
+  }, []);
+
+  const approveDraft = useCallback(() => {
+    dispatch({ type: "approve" });
+  }, []);
+
   useEffect(() => () => controllerRef.current?.abort(), []);
 
-  return { state, dispatch, generate, stop };
+  return {
+    state,
+    selectTicket,
+    generateDraft,
+    stopGeneration,
+    editDraft,
+    approveDraft,
+  };
 };

@@ -1,11 +1,12 @@
 import * as React from "react";
 import { DraftPanel, TicketPanel } from "components";
-import { useDraftGeneration } from "hooks";
+import { useDraftWorkspace } from "hooks";
 import { getTicket, tickets } from "shared";
 import "./styles.css";
 
 export const App = () => {
-  const { state, dispatch, generate, stop } = useDraftGeneration();
+  const { state, selectTicket, generateDraft, stopGeneration, editDraft, approveDraft } =
+    useDraftWorkspace();
   const ticket = getTicket(state.ticketId) ?? tickets[0];
 
   return (
@@ -22,14 +23,14 @@ export const App = () => {
           selectedTicket={ticket}
           selectedTicketId={state.ticketId}
           selectionDisabled={state.phase === "streaming"}
-          onSelectTicket={(ticketId) => dispatch({ type: "select-ticket", ticketId })}
+          onSelectTicket={selectTicket}
         />
         <DraftPanel
           state={state}
-          onGenerate={() => void generate()}
-          onStop={stop}
-          onEdit={(text) => dispatch({ type: "edit", text })}
-          onApprove={() => dispatch({ type: "approve" })}
+          onGenerate={() => void generateDraft()}
+          onStop={stopGeneration}
+          onEdit={editDraft}
+          onApprove={approveDraft}
         />
       </div>
     </main>

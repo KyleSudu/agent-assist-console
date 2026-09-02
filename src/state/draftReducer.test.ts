@@ -1,7 +1,13 @@
 import { describe, expect, it } from "vitest";
-import { draftReducer, initialDraftState } from "./draftReducer";
+import { createInitialDraftState, draftReducer } from "./draftReducer";
+
+const initialDraftState = createInitialDraftState("billing-duplicate-charge");
 
 describe("draftReducer", () => {
+  it("initializes independently of the ticket fixture collection", () => {
+    expect(createInitialDraftState("custom-ticket").ticketId).toBe("custom-ticket");
+  });
+
   it("streams a draft to completion without narrating deltas", () => {
     const started = draftReducer(initialDraftState, { type: "start", requestId: "request-1" });
     const streamed = draftReducer(started, {

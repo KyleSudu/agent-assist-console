@@ -2,8 +2,10 @@ import * as React from "react";
 import { fireEvent, render, screen } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { describe, expect, it, vi } from "vitest";
-import { initialDraftState, type DraftState } from "state";
+import { createInitialDraftState, type DraftState } from "state";
 import { DraftPanel } from ".";
+
+const initialDraftState = createInitialDraftState("billing-duplicate-charge");
 
 const renderPanel = (state: DraftState) => {
   const props = {

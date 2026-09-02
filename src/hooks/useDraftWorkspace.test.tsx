@@ -1,0 +1,94 @@
+import { streamDraft } from "api";
+import { act, renderHook, waitFor } from "@testing-library/react";
+import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
+import { useDraftWorkspace } from ".";
+
+vi.mock("api", () => ({
+  streamDraft: vi.fn(),
+}));
+
+const requestId = "00000000-0000-4000-8000-000000000001";
+const streamDraftMock = vi.mocked(streamDraft);
+
+describe("useDraftWorkspace", () => {
+  beforeEach(() => {
+    vi.spyOn(globalThis.crypto, "randomUUID").mockReturnValue(requestId);
+    streamDraftMock.mockReset();
+  });
+
+  afterEach(() => {
+    vi.restoreAllMocks();
+  });
+
+  it("accumulates events from the draft transport", async () => {
+    streamDraftMock.mockImplementation(async ({ onEvent }) => {
+      onEvent({ type: "delta", requestId, text: "First sentence. " });
+      onEvent({ type: "delta", requestId, text: "Second sentence." });
+      onEvent({ type: "complete", requestId });
+    });
+    const { result } = renderHook(() => useDraftWorkspace());
+
+    await act(async () => {
+      await result.current.generateDraft();
+    });
+
+    expect(result.current.state.phase).toBe("ready");
+    expect(result.current.state.draft).toBe("First sentence. Second sentence.");
+    expect(result.current.state.announcement).toBe("Suggestion ready. 2 sentences.");
+    expect(streamDraftMock).toHaveBeenCalledWith(
+      expect.objectContaining({
+        ticketId: result.current.state.ticketId,
+        requestId,
+        signal: expect.any(AbortSignal),
+        onEvent: expect.any(Function),
+      }),
+    );
+  });
+
+  it("aborts an active request and retains its partial draft", async () => {
+    let requestSignal: AbortSignal | undefined;
+    streamDraftMock.mockImplementation(
+      ({ signal, onEvent }) =>
+        new Promise((_resolve, reject) => {
+          requestSignal = signal;
+          onEvent({ type: "delta", requestId, text: "Partial reply" });
+          signal.addEventListener("abort", () => {
+            reject(new DOMException("The operation was aborted.", "AbortError"));
+          });
+        }),
+    );
+    const { result } = renderHook(() => useDraftWorkspace());
+    let generation: Promise<void>;
+
+    act(() => {
+      generation = result.current.generateDraft();
+    });
+    await waitFor(() => expect(result.current.state.draft).toBe("Partial reply"));
+
+    act(() => {
+      result.current.stopGeneration();
+    });
+    await act(async () => {
+      await generation;
+    });
+
+    expect(requestSignal?.aborted).toBe(true);
+    expect(result.current.state.phase).toBe("stopped");
+    expect(result.current.state.draft).toBe("Partial reply");
+  });
+
+  it("exposes intent-based actions instead of the reducer dispatch function", () => {
+    const { result } = renderHook(() => useDraftWorkspace());
+
+    act(() => {
+      result.current.selectTicket("account-login-code");
+      result.current.editDraft("Reviewed response.");
+      result.current.approveDraft();
+    });
+
+    expect(result.current.state.ticketId).toBe("account-login-code");
+    expect(result.current.state.draft).toBe("Reviewed response.");
+    expect(result.current.state.phase).toBe("approved");
+    expect(result.current).not.toHaveProperty("dispatch");
+  });
+});
