@@ -372,3 +372,25 @@ The fake stream includes both lifecycle events and text-delta events. Tests prov
 Provider selection remains lazy. Choosing `fixture` initializes neither remote SDK client; choosing `openai` creates only the OpenAI adapter; choosing `anthropic` creates only the Anthropic adapter. This matters for both clean configuration and cost safety.
 
 This addition demonstrates the difference between an abstraction and an inheritance hierarchy. Neither provider adapter extends a `BaseModel`. Both independently satisfy the small `StreamingTextModel` capability, while provider-specific request and event details stay inside their respective files. Swapping providers is composition at startup rather than branching throughout the application.
+
+### Colocating each provider adapter
+
+Once a second model provider existed, keeping every model file in one flat directory made the boundary less visible. Each provider now has a folder containing its implementation, tests, and local export:
+
+```text
+models/
+  Anthropic/
+    AnthropicStreamingTextModel.ts
+    AnthropicStreamingTextModel.test.ts
+    index.ts
+  OpenAI/
+    OpenAIStreamingTextModel.ts
+    OpenAIStreamingTextModel.test.ts
+    index.ts
+  types.ts
+  index.ts
+```
+
+The shared `StreamingTextModel` contract stays at the models root because it belongs to neither provider. The root `index.ts` is the public boundary used by the rest of the server, while each provider's `index.ts` makes its folder independently navigable and keeps tests beside the code they exercise.
+
+This structure adds a little ceremony, but it scales predictably: adding another provider means adding another self-contained folder and one root export rather than expanding a mixed directory of similarly named files.

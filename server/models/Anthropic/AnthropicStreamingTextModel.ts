@@ -1,5 +1,5 @@
 import Anthropic from "@anthropic-ai/sdk";
-import type { StreamingTextModel } from "./types";
+import type { StreamingTextModel } from "../types";
 
 type AnthropicDraftRequest = {
   model: string;

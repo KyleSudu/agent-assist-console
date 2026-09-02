@@ -1,5 +1,5 @@
 import OpenAI from "openai";
-import type { StreamingTextModel } from "./types";
+import type { StreamingTextModel } from "../types";
 
 type OpenAITextRequest = {
   model: string;

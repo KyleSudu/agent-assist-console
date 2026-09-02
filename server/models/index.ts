@@ -1,5 +1,5 @@
-export { createAnthropicStreamingTextModel } from "./anthropicStreamingTextModel";
-export type { RequestAnthropicStream } from "./anthropicStreamingTextModel";
-export { createOpenAIStreamingTextModel } from "./openAIStreamingTextModel";
-export type { RequestOpenAIStream } from "./openAIStreamingTextModel";
+export { createAnthropicStreamingTextModel } from "./Anthropic";
+export type { RequestAnthropicStream } from "./Anthropic";
+export { createOpenAIStreamingTextModel } from "./OpenAI";
+export type { RequestOpenAIStream } from "./OpenAI";
 export type { StreamingTextModel, StreamTextOptions, TextPrompt } from "./types";
