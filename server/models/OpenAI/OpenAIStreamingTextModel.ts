@@ -1,3 +1,6 @@
+/**
+ * Adapts OpenAI's Responses API to the application's provider-neutral streaming model. Provider events are filtered so callers receive only generated text chunks.
+ */
 import OpenAI from "openai";
 import type { StreamingTextModel } from "../types";
 
