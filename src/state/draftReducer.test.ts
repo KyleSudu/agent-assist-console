@@ -18,7 +18,11 @@ describe("draftReducer", () => {
 
   it("keeps partial text when generation stops", () => {
     const started = draftReducer(initialDraftState, { type: "start", requestId: "request-1" });
-    const streamed = draftReducer(started, { type: "delta", requestId: "request-1", text: "Partial" });
+    const streamed = draftReducer(started, {
+      type: "delta",
+      requestId: "request-1",
+      text: "Partial",
+    });
     const stopped = draftReducer(streamed, { type: "stop", requestId: "request-1" });
 
     expect(stopped.phase).toBe("stopped");
