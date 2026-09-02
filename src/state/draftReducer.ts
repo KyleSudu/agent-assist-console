@@ -1,13 +1,7 @@
-import { tickets } from "../../shared/tickets";
+import { tickets } from "shared";
 
 export type DraftPhase =
-  | "idle"
-  | "streaming"
-  | "stopped"
-  | "ready"
-  | "editing"
-  | "approved"
-  | "error";
+  "idle" | "streaming" | "stopped" | "ready" | "editing" | "approved" | "error";
 
 export type DraftState = {
   ticketId: string;

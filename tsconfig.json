@@ -11,6 +11,13 @@
     "forceConsistentCasingInFileNames": true,
     "module": "ESNext",
     "moduleResolution": "Bundler",
+    "paths": {
+      "components": ["./src/components/index.ts"],
+      "hooks": ["./src/hooks/index.ts"],
+      "shared": ["./shared/index.ts"],
+      "state": ["./src/state/index.ts"],
+      "streaming": ["./src/streaming/index.ts"]
+    },
     "resolveJsonModule": true,
     "isolatedModules": true,
     "noEmit": true,

@@ -1,7 +1,7 @@
 import { useCallback, useEffect, useReducer, useRef } from "react";
-import type { DraftStreamEvent } from "../../shared/contracts";
-import { draftReducer, initialDraftState } from "../state/draftReducer";
-import { createSseParser } from "../streaming/parseSse";
+import type { DraftStreamEvent } from "shared";
+import { draftReducer, initialDraftState } from "state";
+import { createSseParser } from "streaming";
 
 export const useDraftGeneration = () => {
   const [state, dispatch] = useReducer(draftReducer, initialDraftState);

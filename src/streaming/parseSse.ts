@@ -1,4 +1,4 @@
-import type { DraftStreamEvent } from "../../shared/contracts";
+import type { DraftStreamEvent } from "shared";
 
 export type SseParser = {
   push: (chunk: string) => DraftStreamEvent[];

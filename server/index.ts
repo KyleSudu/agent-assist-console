@@ -1,6 +1,5 @@
 import { createServer, type IncomingMessage, type ServerResponse } from "node:http";
-import type { DraftStreamEvent, GenerateDraftRequest } from "../shared/contracts";
-import { getTicket } from "../shared/tickets";
+import { getTicket, type DraftStreamEvent, type GenerateDraftRequest } from "shared";
 
 const port = Number(process.env.PORT ?? 8787);
 

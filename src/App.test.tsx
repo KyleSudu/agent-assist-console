@@ -1,3 +1,4 @@
+import * as React from "react";
 import { render, screen } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { describe, expect, it } from "vitest";
@@ -8,8 +9,13 @@ describe("App", () => {
     const user = userEvent.setup();
     render(<App />);
 
-    await user.selectOptions(screen.getByLabelText("Select a synthetic ticket"), "account-login-code");
+    await user.selectOptions(
+      screen.getByLabelText("Select a synthetic ticket"),
+      "account-login-code",
+    );
 
-    expect(screen.getByRole("heading", { name: "Login code sent to an old number" })).toBeInTheDocument();
+    expect(
+      screen.getByRole("heading", { name: "Login code sent to an old number" }),
+    ).toBeInTheDocument();
   });
 });
