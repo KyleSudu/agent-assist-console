@@ -1,10 +1,10 @@
 import { tickets } from "shared";
 import { describe, expect, it } from "vitest";
-import { createFixtureDraftGenerator } from ".";
+import { createFixtureSupportReplyGenerator } from ".";
 
-describe("createFixtureDraftGenerator", () => {
+describe("createFixtureSupportReplyGenerator", () => {
   it("yields a deterministic reply as incremental text", async () => {
-    const generator = createFixtureDraftGenerator({ delayMs: 0 });
+    const generator = createFixtureSupportReplyGenerator({ delayMs: 0 });
     const chunks: string[] = [];
 
     for await (const chunk of generator.generate(tickets[0], {
@@ -19,7 +19,7 @@ describe("createFixtureDraftGenerator", () => {
   });
 
   it("stops yielding text after cancellation", async () => {
-    const generator = createFixtureDraftGenerator({ delayMs: 0 });
+    const generator = createFixtureSupportReplyGenerator({ delayMs: 0 });
     const controller = new AbortController();
     const chunks: string[] = [];
 

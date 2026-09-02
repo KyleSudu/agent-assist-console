@@ -1,6 +1,6 @@
 import { tickets } from "shared";
 import { describe, expect, it, vi } from "vitest";
-import { createAnthropicDraftGenerator, type RequestAnthropicStream } from ".";
+import { createAnthropicSupportReplyGenerator, type RequestAnthropicStream } from ".";
 
 const createEvents = async function* () {
   yield { type: "message_start" };
@@ -19,11 +19,11 @@ const createEvents = async function* () {
   yield { type: "message_stop" };
 };
 
-describe("createAnthropicDraftGenerator", () => {
+describe("createAnthropicSupportReplyGenerator", () => {
   it("translates the generic prompt into an Anthropic streaming request", async () => {
     const requestStream = vi.fn<RequestAnthropicStream>().mockResolvedValue(createEvents());
     const controller = new AbortController();
-    const generator = createAnthropicDraftGenerator({
+    const generator = createAnthropicSupportReplyGenerator({
       apiKey: "test-key",
       model: "test-model",
       maxTokens: 300,
@@ -56,7 +56,7 @@ describe("createAnthropicDraftGenerator", () => {
     const requestStream = vi
       .fn<RequestAnthropicStream>()
       .mockRejectedValue(new Error("Provider unavailable"));
-    const generator = createAnthropicDraftGenerator({
+    const generator = createAnthropicSupportReplyGenerator({
       apiKey: "test-key",
       model: "test-model",
       requestStream,

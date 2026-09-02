@@ -1,17 +1,17 @@
 import { describe, expect, it, vi } from "vitest";
-import { selectDraftGenerator, type DraftGenerator } from ".";
+import { selectSupportReplyGenerator, type SupportReplyGenerator } from ".";
 
-const generator: DraftGenerator = {
+const generator: SupportReplyGenerator = {
   generate: vi.fn(),
 };
 
-describe("selectDraftGenerator", () => {
+describe("selectSupportReplyGenerator", () => {
   it("lazily creates the selected provider", () => {
     const createFixture = vi.fn(() => generator);
     const createRemote = vi.fn(() => generator);
 
     expect(
-      selectDraftGenerator("fixture", {
+      selectSupportReplyGenerator("fixture", {
         fixture: createFixture,
         remote: createRemote,
       }),
@@ -21,8 +21,8 @@ describe("selectDraftGenerator", () => {
   });
 
   it("rejects providers that have not been registered", () => {
-    expect(() => selectDraftGenerator("unknown", { fixture: () => generator })).toThrow(
-      'Draft provider "unknown" is not available',
+    expect(() => selectSupportReplyGenerator("unknown", { fixture: () => generator })).toThrow(
+      'Support reply provider "unknown" is not available',
     );
   });
 });

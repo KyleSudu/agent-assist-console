@@ -232,3 +232,24 @@ The SDK's event union revealed that not every event containing a `delta` gives t
 The adapter forwards the workspace's `AbortSignal` into the SDK request. Provider errors are allowed to propagate so the HTTP route can translate them into the application's existing error event instead of hiding failures inside the adapter.
 
 Tests inject a fake `requestStream` function. This exercises prompt translation, text-event filtering, cancellation wiring, and error propagation without loading credentials, making network calls, or incurring model costs.
+
+### Naming refinement: `SupportReplyGenerator`
+
+After implementing the first adapter, the name `DraftGenerator` felt too mechanical and underspecified. The application is not generating arbitrary drafts; it has one domain capability—producing a proposed support reply. The shared contract was renamed accordingly:
+
+```ts
+interface SupportReplyGenerator {
+  generate(ticket: Ticket, options: GenerateReplyOptions): AsyncIterable<string>;
+}
+```
+
+An interface makes the intended implementation boundary visually explicit. The fixture and Anthropic factory functions both declare `SupportReplyGenerator` as their return type, so TypeScript verifies that they fulfill the same contract.
+
+No base class is required. TypeScript uses structural typing, and these adapters do not share implementation state or behavior that would justify class inheritance. Factory-based composition keeps construction flexible while the interface supplies the compile-time guarantee:
+
+```ts
+createFixtureSupportReplyGenerator(): SupportReplyGenerator;
+createAnthropicSupportReplyGenerator(options): SupportReplyGenerator;
+```
+
+The Anthropic SDK client does not inherit from `SupportReplyGenerator`; it has a different, provider-level responsibility. The Anthropic adapter wraps that client and translates between the SDK's event model and the application's domain contract.

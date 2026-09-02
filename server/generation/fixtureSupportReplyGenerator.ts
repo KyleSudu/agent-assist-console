@@ -1,5 +1,5 @@
 import type { Ticket } from "shared";
-import type { DraftGenerator } from "./types";
+import type { SupportReplyGenerator } from "./types";
 
 const fixtureReplies: Record<string, string> = {
   "billing-duplicate-charge":
@@ -12,16 +12,16 @@ const fixtureReplies: Record<string, string> = {
     "Hi Priya, I am sorry the cancellation disrupted your plans. The refund has been released from our side, but card issuers can take several business days to post it to the original payment method. Please check the refund status in your trip details and allow up to ten business days from the issue date. If it is still missing after that date, reply here so we can trace it with the payment processor.",
 };
 
-type FixtureDraftGeneratorOptions = {
+type FixtureSupportReplyGeneratorOptions = {
   delayMs?: number;
 };
 
 const wait = (delayMs: number) =>
   delayMs > 0 ? new Promise((resolve) => setTimeout(resolve, delayMs)) : Promise.resolve();
 
-export const createFixtureDraftGenerator = ({
+export const createFixtureSupportReplyGenerator = ({
   delayMs = 90,
-}: FixtureDraftGeneratorOptions = {}): DraftGenerator => ({
+}: FixtureSupportReplyGeneratorOptions = {}): SupportReplyGenerator => ({
   async *generate(ticket: Ticket, { signal }) {
     const reply = fixtureReplies[ticket.id];
     if (!reply) throw new Error(`No fixture reply exists for ticket ${ticket.id}`);

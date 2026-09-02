@@ -1,9 +1,9 @@
 import type { Ticket } from "shared";
 
-export type GenerateDraftOptions = {
+export type GenerateReplyOptions = {
   signal: AbortSignal;
 };
 
-export type DraftGenerator = {
-  generate: (ticket: Ticket, options: GenerateDraftOptions) => AsyncIterable<string>;
-};
+export interface SupportReplyGenerator {
+  generate(ticket: Ticket, options: GenerateReplyOptions): AsyncIterable<string>;
+}

@@ -1,8 +1,8 @@
-export { createAnthropicDraftGenerator } from "./anthropicDraftGenerator";
-export type { RequestAnthropicStream } from "./anthropicDraftGenerator";
+export { createAnthropicSupportReplyGenerator } from "./anthropicSupportReplyGenerator";
+export type { RequestAnthropicStream } from "./anthropicSupportReplyGenerator";
 export { buildDraftPrompt } from "./buildDraftPrompt";
 export type { DraftPrompt } from "./buildDraftPrompt";
-export { createFixtureDraftGenerator } from "./fixtureDraftGenerator";
-export { selectDraftGenerator } from "./selectDraftGenerator";
-export type { DraftGeneratorFactories } from "./selectDraftGenerator";
-export type { DraftGenerator, GenerateDraftOptions } from "./types";
+export { createFixtureSupportReplyGenerator } from "./fixtureSupportReplyGenerator";
+export { selectSupportReplyGenerator } from "./selectSupportReplyGenerator";
+export type { SupportReplyGeneratorFactories } from "./selectSupportReplyGenerator";
+export type { GenerateReplyOptions, SupportReplyGenerator } from "./types";

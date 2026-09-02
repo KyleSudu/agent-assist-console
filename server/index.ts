@@ -2,13 +2,13 @@ import "dotenv/config";
 import { createServer, type IncomingMessage, type ServerResponse } from "node:http";
 import { getTicket, type DraftStreamEvent, type GenerateDraftRequest } from "shared";
 import { loadServerConfig } from "./config";
-import { createFixtureDraftGenerator, selectDraftGenerator } from "./generation";
+import { createFixtureSupportReplyGenerator, selectSupportReplyGenerator } from "./generation";
 
 const config = loadServerConfig();
 const port = config.port;
 
-const draftGenerator = selectDraftGenerator(config.draftProvider, {
-  fixture: createFixtureDraftGenerator,
+const supportReplyGenerator = selectSupportReplyGenerator(config.draftProvider, {
+  fixture: createFixtureSupportReplyGenerator,
 });
 
 const readJson = async (request: IncomingMessage): Promise<unknown> => {
@@ -60,7 +60,7 @@ const streamDraft = async (request: IncomingMessage, response: ServerResponse) =
 
   sendEvent(response, { type: "start", requestId: body.requestId });
 
-  for await (const text of draftGenerator.generate(ticket, { signal: controller.signal })) {
+  for await (const text of supportReplyGenerator.generate(ticket, { signal: controller.signal })) {
     sendEvent(response, { type: "delta", requestId: body.requestId, text });
   }
 
