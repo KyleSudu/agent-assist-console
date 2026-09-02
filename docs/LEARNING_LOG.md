@@ -297,3 +297,18 @@ const createModelSupportReplyGenerator = (model: StreamingTextModel): SupportRep
 This creates two useful axes of change. Support prompt behavior can evolve without editing provider adapters, and model providers can be swapped without editing ticket-to-prompt logic.
 
 The fixture implementation intentionally remains a direct `SupportReplyGenerator`. It replaces the complete remote generation path with known ticket-specific replies, which is more useful for deterministic UI development than pretending to be a general-purpose language model.
+
+## 2026-09-02 — Connecting configuration through composition
+
+The provider setting now selects a fully composed `SupportReplyGenerator`. Fixture mode returns the deterministic domain implementation. Anthropic mode creates an Anthropic `StreamingTextModel`, then injects it into the model-backed support reply generator:
+
+```ts
+anthropic: () =>
+  createModelSupportReplyGenerator(createAnthropicStreamingTextModel({ apiKey, model }));
+```
+
+This is the point where the layers become executable rather than merely conceptual. The HTTP server still depends on one `SupportReplyGenerator`; configuration decides how that capability is assembled at startup.
+
+Both `MODEL_API_KEY` and `MODEL_NAME` are required for remote providers. Making the model name explicit improves reproducibility and allows changing models without modifying source code. The fixture factory and remote factories remain lazy, so fixture mode never initializes the Anthropic client.
+
+The composition test injects a fake `StreamingTextModel` and verifies the entire handoff from ticket to prompt to streamed model text without making a network request.

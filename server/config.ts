@@ -24,6 +24,10 @@ export const loadServerConfig = (environment: Environment = process.env): Server
     throw new Error("MODEL_API_KEY is required when a remote draft provider is selected");
   }
 
+  if (draftProvider !== "fixture" && !modelName) {
+    throw new Error("MODEL_NAME is required when a remote draft provider is selected");
+  }
+
   return {
     port: readPort(environment.PORT),
     draftProvider,

@@ -17,6 +17,12 @@ describe("loadServerConfig", () => {
     );
   });
 
+  it("requires a model name when a remote provider is selected", () => {
+    expect(() =>
+      loadServerConfig({ DRAFT_PROVIDER: "anthropic", MODEL_API_KEY: "test-key" }),
+    ).toThrow("MODEL_NAME is required");
+  });
+
   it("accepts provider-neutral model configuration", () => {
     expect(
       loadServerConfig({

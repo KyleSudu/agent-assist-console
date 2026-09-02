@@ -2,14 +2,12 @@ import "dotenv/config";
 import { createServer, type IncomingMessage, type ServerResponse } from "node:http";
 import { getTicket, type DraftStreamEvent, type GenerateDraftRequest } from "shared";
 import { loadServerConfig } from "./config";
-import { createFixtureSupportReplyGenerator, selectSupportReplyGenerator } from "./generation";
+import { createConfiguredSupportReplyGenerator } from "./generation";
 
 const config = loadServerConfig();
 const port = config.port;
 
-const supportReplyGenerator = selectSupportReplyGenerator(config.draftProvider, {
-  fixture: createFixtureSupportReplyGenerator,
-});
+const supportReplyGenerator = createConfiguredSupportReplyGenerator(config);
 
 const readJson = async (request: IncomingMessage): Promise<unknown> => {
   const chunks: Buffer[] = [];
