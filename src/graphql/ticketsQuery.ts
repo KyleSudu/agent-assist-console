@@ -1,11 +1,6 @@
-import { gql, type TypedDocumentNode } from "@apollo/client";
-import type { Ticket } from "shared";
+import { graphql } from "./generated";
 
-export type TicketsQueryData = {
-  tickets: Ticket[];
-};
-
-export const TICKETS_QUERY: TypedDocumentNode<TicketsQueryData> = gql`
+export const TICKETS_QUERY = graphql(`
   query Tickets {
     tickets {
       id
@@ -14,4 +9,4 @@ export const TICKETS_QUERY: TypedDocumentNode<TicketsQueryData> = gql`
       body
     }
   }
-`;
+`);

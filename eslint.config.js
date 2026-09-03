@@ -12,6 +12,7 @@ export default defineConfig([
     "dist",
     "node_modules",
     "playwright-report",
+    "src/graphql/generated",
     "test-results",
     "work",
     "outputs",

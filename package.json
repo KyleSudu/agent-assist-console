@@ -8,6 +8,8 @@
     "dev:web": "vite",
     "dev:api": "tsx server/index.ts",
     "build": "tsc --noEmit && vite build",
+    "codegen": "graphql-codegen --config codegen.ts",
+    "codegen:check": "npm run codegen && git diff --exit-code -- src/graphql/generated",
     "format": "prettier --write .",
     "format:check": "prettier --check .",
     "lint": "eslint . --max-warnings 0",
@@ -31,6 +33,8 @@
   },
   "devDependencies": {
     "@eslint/js": "^10.0.1",
+    "@graphql-codegen/cli": "^7.4.0",
+    "@graphql-codegen/client-preset": "^6.1.3",
     "@testing-library/jest-dom": "latest",
     "@testing-library/react": "latest",
     "@testing-library/user-event": "latest",

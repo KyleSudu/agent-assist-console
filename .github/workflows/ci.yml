@@ -33,6 +33,9 @@ jobs:
       - name: Lint
         run: npm run lint
 
+      - name: Check generated GraphQL types
+        run: npm run codegen:check
+
       - name: Run unit and integration tests
         run: npm test
 

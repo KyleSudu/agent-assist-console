@@ -522,3 +522,9 @@ Keyboard access and streaming behavior are related but different concerns. Nativ
 Streaming also changes content repeatedly without moving focus. The visual draft can update incrementally, but its text is deliberately excluded from the ARIA live region. A single polite, atomic status instead announces lifecycle milestones such as generation starting, stopping, and becoming ready. Reduced-motion buffering lowers visual update frequency without changing the network protocol.
 
 The validation strategy therefore combines focused component tests for keyboard behavior, axe-core audits at meaningful browser states, and a manual VoiceOver/Safari checklist. Automated scans cannot judge whether a stream of speech is understandable, so the project records them as evidence rather than proof of WCAG conformance.
+
+## 2026-09-03 — Generating types from GraphQL operations
+
+The schema describes every field the API permits, while an operation selects only the fields one client request actually receives. A handwritten `TicketsQueryData` type could drift from either document without warning; GraphQL Code Generator now derives the operation result and variables from both sources.
+
+The generated `TypedDocumentNode` carries those types into Apollo's `useQuery`, so `data` is inferred without a type argument in the component. Generated files are committed for reproducible installs, and CI regenerates them and fails if the committed output is stale. This turns schema/query drift into an early build failure instead of a runtime surprise.
