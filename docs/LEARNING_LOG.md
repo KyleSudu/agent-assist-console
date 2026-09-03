@@ -468,3 +468,11 @@ Vitest and Cypress are complementary rather than interchangeable. Vitest gives f
 The README now includes a Mermaid sequence diagram for the successful draft-review path. A sequence diagram fits this feature better than a component tree because the key complexity is temporal: an action crosses the UI, workspace hook, API, and generator before a series of SSE events travels back to the user.
 
 The diagram deliberately describes the reply generator as a capability rather than drawing provider-specific branches. Fixture, OpenAI, and Anthropic selection is a server composition detail; the critical user journey remains the same. Cancellation and error behavior are mentioned as branches without crowding the happy path that a new reader needs to understand first.
+
+### Tracing the implementation by file
+
+The high-level sequence explains system behavior, but it does not answer the practical debugging question: “Where would I put a breakpoint?” A second diagram maps the request to concrete source files, and a linked table describes each file's responsibility.
+
+The trace separates startup composition from runtime execution. Configuration and provider selection run once when the API starts; an individual draft request uses the already-injected `SupportReplyGenerator`. This avoids implying that the request handler repeatedly reads configuration or chooses a provider for every text delta.
+
+The response path also demonstrates why a network chunk is not the same thing as an application event. `streamDraft.ts` reads arbitrary bytes, `parseSse.ts` reconstructs complete SSE messages, and only then does `useDraftWorkspace.ts` decide whether a delta should reach the reducer immediately or pass through the reduced-motion buffer.
