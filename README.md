@@ -98,6 +98,7 @@ Use `DRAFT_PROVIDER=anthropic` for the Anthropic adapter. Keep secrets in `.env`
 ```bash
 npm run typecheck
 npm test
+npm run test:e2e
 npm run build
 ```
 
@@ -105,7 +106,7 @@ npm run build
 
 ### v0 - accessible generative streaming
 
-- Harden keyboard and focus behavior with browser-level tests
+- Expand browser-level coverage for keyboard and focus behavior
 - Add application-level request and token budgets for model-backed generation
 - Test repeated cancellation for orphaned requests and late updates
 - Document VoiceOver/Safari and NVDA/Firefox behavior

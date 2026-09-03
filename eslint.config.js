@@ -7,7 +7,15 @@ import globals from "globals";
 import tseslint from "typescript-eslint";
 
 export default defineConfig([
-  globalIgnores(["dist", "node_modules", "playwright-report", "test-results", "work", "outputs"]),
+  globalIgnores([
+    ".cache",
+    "dist",
+    "node_modules",
+    "playwright-report",
+    "test-results",
+    "work",
+    "outputs",
+  ]),
   {
     files: ["**/*.{js,ts,tsx}"],
     extends: [
@@ -23,6 +31,12 @@ export default defineConfig([
         ...globals.browser,
         ...globals.node,
       },
+    },
+  },
+  {
+    files: ["cypress/**/*.ts"],
+    languageOptions: {
+      globals: globals.cypress,
     },
   },
 ]);

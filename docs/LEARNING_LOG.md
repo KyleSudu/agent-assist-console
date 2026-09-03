@@ -441,3 +441,24 @@ reduced motion disabled  -> flush, then resume immediate deltas
 Flushing before Stop is especially important. The server may already have delivered text that has not reached React state yet; discarding the buffer would violate the promise that cancellation retains the partial draft.
 
 The screen-reader strategy remains unchanged. The textarea receives either immediate or buffered visual text, while the ARIA live region announces only lifecycle milestones such as generation starting, stopping, or becoming ready. Reduced motion changes visual update frequency without turning provisional model output into a spoken transcript.
+
+## 2026-09-02 — Adding the first browser-level workflow test
+
+The existing Vitest suite checks components, hooks, reducers, adapters, and the real HTTP/SSE boundary in isolation. Cypress adds a different kind of confidence: it starts the frontend and API together, opens the application in Chrome, and interacts with the interface like a user.
+
+The first end-to-end test follows one complete review path:
+
+```text
+select ticket
+  -> request fixture draft
+  -> observe streaming state
+  -> wait for the completed reply
+  -> edit the suggestion
+  -> approve the reviewed text
+```
+
+Selectors use the application's existing labels, element IDs, button text, and visible state rather than adding attributes solely for Cypress. This makes the test exercise the same accessible interface exposed to users.
+
+The test command forces `DRAFT_PROVIDER=fixture`. End-to-end tests should be deterministic and inexpensive, so the normal suite must never depend on an API key, remote-model availability, variable output, or paid requests. Model SDK behavior remains covered by injected fake streams in Vitest; Cypress verifies that the provider-neutral application path works as a whole.
+
+Vitest and Cypress are complementary rather than interchangeable. Vitest gives fast, focused failure messages for application logic. Cypress is slower, but catches integration failures involving the compiled browser UI, network proxy, API server, SSE transport, and user interactions.
