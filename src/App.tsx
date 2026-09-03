@@ -6,7 +6,7 @@ import "./styles.css";
 
 export const App = () => {
   const { state, selectTicket, generateDraft, stopGeneration, editDraft, approveDraft } =
-    useDraftWorkspace();
+    useDraftWorkspace(tickets[0].id);
   const ticket = getTicket(state.ticketId) ?? tickets[0];
 
   return (

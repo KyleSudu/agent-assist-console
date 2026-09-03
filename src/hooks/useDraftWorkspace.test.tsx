@@ -8,6 +8,7 @@ vi.mock("api", () => ({
 }));
 
 const requestId = "00000000-0000-4000-8000-000000000001";
+const initialTicketId = "billing-duplicate-charge";
 const streamDraftMock = vi.mocked(streamDraft);
 
 const enableReducedMotion = () => {
@@ -45,7 +46,7 @@ describe("useDraftWorkspace", () => {
       onEvent({ type: "delta", requestId, text: "Second sentence." });
       onEvent({ type: "complete", requestId });
     });
-    const { result } = renderHook(() => useDraftWorkspace());
+    const { result } = renderHook(() => useDraftWorkspace(initialTicketId));
 
     await act(async () => {
       await result.current.generateDraft();
@@ -76,7 +77,7 @@ describe("useDraftWorkspace", () => {
           });
         }),
     );
-    const { result } = renderHook(() => useDraftWorkspace());
+    const { result } = renderHook(() => useDraftWorkspace(initialTicketId));
     let generation: Promise<void>;
 
     act(() => {
@@ -109,7 +110,7 @@ describe("useDraftWorkspace", () => {
           };
         }),
     );
-    const { result } = renderHook(() => useDraftWorkspace());
+    const { result } = renderHook(() => useDraftWorkspace(initialTicketId));
     let generation: Promise<void>;
 
     act(() => {
@@ -138,7 +139,7 @@ describe("useDraftWorkspace", () => {
           });
         }),
     );
-    const { result } = renderHook(() => useDraftWorkspace());
+    const { result } = renderHook(() => useDraftWorkspace(initialTicketId));
     let generation: Promise<void>;
 
     act(() => {
@@ -155,7 +156,7 @@ describe("useDraftWorkspace", () => {
   });
 
   it("exposes intent-based actions instead of the reducer dispatch function", () => {
-    const { result } = renderHook(() => useDraftWorkspace());
+    const { result } = renderHook(() => useDraftWorkspace(initialTicketId));
 
     act(() => {
       result.current.selectTicket("account-login-code");

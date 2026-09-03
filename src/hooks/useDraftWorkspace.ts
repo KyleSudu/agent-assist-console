@@ -1,12 +1,12 @@
 import { streamDraft } from "api";
 import { useCallback, useEffect, useMemo, useReducer, useRef } from "react";
-import { tickets, type DraftStreamEvent } from "shared";
+import type { DraftStreamEvent } from "shared";
 import { createInitialDraftState, draftReducer } from "state";
 import { createDraftDeltaBuffer } from "streaming";
 import { usePrefersReducedMotion } from "./usePrefersReducedMotion";
 
-export const useDraftWorkspace = () => {
-  const [state, dispatch] = useReducer(draftReducer, tickets[0].id, createInitialDraftState);
+export const useDraftWorkspace = (initialTicketId: string) => {
+  const [state, dispatch] = useReducer(draftReducer, initialTicketId, createInitialDraftState);
   const controllerRef = useRef<AbortController | null>(null);
   const prefersReducedMotion = usePrefersReducedMotion();
   const prefersReducedMotionRef = useRef(prefersReducedMotion);
