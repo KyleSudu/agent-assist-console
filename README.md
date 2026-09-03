@@ -59,6 +59,39 @@ Node API
   -> emits start, delta, complete, or error events
 ```
 
+### Happy-path request flow
+
+```mermaid
+sequenceDiagram
+    actor Agent as Support agent
+    participant UI as React UI
+    participant Workspace as useDraftWorkspace
+    participant API as Node API
+    participant Generator as Reply generator
+
+    Agent->>UI: Select ticket and choose Draft reply
+    UI->>Workspace: generateDraft()
+    Workspace->>API: POST /api/drafts/stream
+    API->>Generator: generate(ticket, abort signal)
+    Note over Generator: Fixture or model-backed implementation
+    API-->>Workspace: SSE start event
+
+    loop Each generated text chunk
+        Generator-->>API: Text delta
+        API-->>Workspace: SSE delta event
+        Workspace-->>UI: Render immediate or buffered text
+    end
+
+    Generator-->>API: Stream complete
+    API-->>Workspace: SSE complete event
+    Workspace-->>UI: Enable editing and announce readiness
+    Agent->>UI: Review, edit, and approve reply
+    UI->>Workspace: edit and approve actions
+    Workspace-->>UI: Show approved read-only reply
+```
+
+This is the critical user journey covered by the Cypress test. Cancellation and provider-error paths branch from the streaming portion and retain any usable partial draft.
+
 The stream uses an HTTP `POST` with an SSE-formatted response. The browser reads it through `fetch()` and `ReadableStream` rather than `EventSource`, because the request includes a ticket payload.
 
 GraphQL is intentionally not used for the token stream. A later iteration will use GraphQL and Apollo for discrete ticket, draft, and approval entities while leaving high-frequency generation updates on the streaming transport.

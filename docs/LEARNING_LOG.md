@@ -462,3 +462,9 @@ Selectors use the application's existing labels, element IDs, button text, and v
 The test command forces `DRAFT_PROVIDER=fixture`. End-to-end tests should be deterministic and inexpensive, so the normal suite must never depend on an API key, remote-model availability, variable output, or paid requests. Model SDK behavior remains covered by injected fake streams in Vitest; Cypress verifies that the provider-neutral application path works as a whole.
 
 Vitest and Cypress are complementary rather than interchangeable. Vitest gives fast, focused failure messages for application logic. Cypress is slower, but catches integration failures involving the compiled browser UI, network proxy, API server, SSE transport, and user interactions.
+
+## 2026-09-02 — Documenting the critical user journey
+
+The README now includes a Mermaid sequence diagram for the successful draft-review path. A sequence diagram fits this feature better than a component tree because the key complexity is temporal: an action crosses the UI, workspace hook, API, and generator before a series of SSE events travels back to the user.
+
+The diagram deliberately describes the reply generator as a capability rather than drawing provider-specific branches. Fixture, OpenAI, and Anthropic selection is a server composition detail; the critical user journey remains the same. Cancellation and error behavior are mentioned as branches without crowding the happy path that a new reader needs to understand first.
