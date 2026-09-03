@@ -16,8 +16,8 @@
     "test": "vitest run",
     "test:watch": "vitest",
     "test:e2e": "cross-env DRAFT_PROVIDER=fixture start-server-and-test dev http://127.0.0.1:5173 cypress:run",
-    "cypress:open": "cross-env DRAFT_PROVIDER=fixture CYPRESS_CACHE_FOLDER=.cache/Cypress cypress open",
-    "cypress:run": "cross-env DRAFT_PROVIDER=fixture CYPRESS_CACHE_FOLDER=.cache/Cypress cypress run --browser chrome"
+    "cypress:open": "cross-env DRAFT_PROVIDER=fixture cypress open",
+    "cypress:run": "cross-env DRAFT_PROVIDER=fixture cypress run --browser chrome"
   },
   "dependencies": {
     "@anthropic-ai/sdk": "^0.123.0",

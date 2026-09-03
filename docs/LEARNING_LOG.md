@@ -463,6 +463,8 @@ The test command forces `DRAFT_PROVIDER=fixture`. End-to-end tests should be det
 
 Vitest and Cypress are complementary rather than interchangeable. Vitest gives fast, focused failure messages for application logic. Cypress is slower, but catches integration failures involving the compiled browser UI, network proxy, API server, SSE transport, and user interactions.
 
+The committed commands use Cypress's standard user-level binary cache. A project-local cache was useful inside the restricted development environment, but encoding that location in `package.json` would make a fresh clone fail because the downloaded browser is intentionally excluded from Git. Machine-specific workarounds should stay outside the shared project contract.
+
 ## 2026-09-02 — Documenting the critical user journey
 
 The README now includes a Mermaid sequence diagram for the successful draft-review path. A sequence diagram fits this feature better than a component tree because the key complexity is temporal: an action crosses the UI, workspace hook, API, and generator before a series of SSE events travels back to the user.
