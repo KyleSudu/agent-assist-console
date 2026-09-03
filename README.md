@@ -105,7 +105,7 @@ server/index.ts
   -> server/supportReplies/createConfiguredSupportReplyGenerator.ts
   -> server/supportReplies/selectSupportReplyGenerator.ts
   -> fixture generator or model-backed generator + provider adapter
-  -> server/createAgentAssistServer.ts
+  -> server/AgentAssistServer/createAgentAssistServer.ts
 ```
 
 After that composition step, one click on **Draft reply** follows this runtime path:
@@ -114,7 +114,7 @@ After that composition step, one click on **Draft reply** follows this runtime p
 flowchart TD
     App["1. src/App.tsx<br/>Draft reply callback"] --> Hook["2. src/hooks/useDraftWorkspace.ts<br/>Create request ID and AbortController"]
     Hook --> Client["3. src/api/streamDraft.ts<br/>POST ticket ID and request ID"]
-    Client --> Server["4. server/createAgentAssistServer.ts<br/>Validate request"]
+    Client --> Server["4. server/AgentAssistServer/createAgentAssistServer.ts<br/>Route request"]
     Server --> Tickets["5. shared/tickets.ts<br/>Resolve synthetic ticket"]
     Tickets --> Server
     Server --> Generator["6. Configured SupportReplyGenerator<br/>Stream reply text"]
@@ -133,7 +133,7 @@ flowchart TD
 | 1    | [`src/App.tsx`](src/App.tsx)                                                                                                     | Connects the draft-panel action to the workspace hook.                                   |
 | 2    | [`src/hooks/useDraftWorkspace.ts`](src/hooks/useDraftWorkspace.ts)                                                               | Owns request identity, cancellation, event handling, and review actions.                 |
 | 3    | [`src/api/streamDraft.ts`](src/api/streamDraft.ts)                                                                               | Sends the POST request and reads the streaming response body.                            |
-| 4    | [`server/createAgentAssistServer.ts`](server/createAgentAssistServer.ts)                                                         | Validates the request and writes the typed SSE response.                                 |
+| 4    | [`server/AgentAssistServer/createAgentAssistServer.ts`](server/AgentAssistServer/createAgentAssistServer.ts)                     | Routes the request to GraphQL or the draft-stream handler.                               |
 | 5    | [`shared/tickets.ts`](shared/tickets.ts)                                                                                         | Resolves the synthetic ticket named by the request.                                      |
 | 6a   | [`server/supportReplies/Fixture/FixtureSupportReplyGenerator.ts`](server/supportReplies/Fixture/FixtureSupportReplyGenerator.ts) | Produces deterministic local chunks in fixture mode.                                     |
 | 6b   | [`server/supportReplies/modelSupportReplyGenerator.ts`](server/supportReplies/modelSupportReplyGenerator.ts)                     | Builds the support prompt and delegates remote generation to the selected model adapter. |

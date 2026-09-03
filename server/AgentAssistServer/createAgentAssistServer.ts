@@ -1,6 +1,6 @@
 import { createServer, type IncomingMessage, type ServerResponse } from "node:http";
-import { createDraftStreamHandler } from "./draftStream";
-import type { SupportReplyGenerator } from "./supportReplies";
+import { createDraftStreamHandler } from "../draftStream";
+import type { SupportReplyGenerator } from "../supportReplies";
 
 type RequestHandler = (request: IncomingMessage, response: ServerResponse) => void | Promise<void>;
 

@@ -506,3 +506,5 @@ This boundary also reinforces why the AI stream remains separate. Yoga and Apoll
 Adding a second API style made the original server file's mixed responsibilities obvious. The route table remains in `createAgentAssistServer`, while request parsing, ticket validation, SSE formatting, cancellation, and provider-error handling now live together in `draftStream/createDraftStreamHandler.ts`.
 
 The extraction follows capability boundaries rather than placing every helper in its own file. `readJson`, `sendEvent`, and `canWrite` are implementation details used only by the draft-stream handler, so keeping them colocated makes that behavior easier to trace without creating a directory full of tiny abstractions.
+
+The remaining server factory and its integration test moved into `AgentAssistServer/` with a local `index.ts`. Colocating the test with the factory keeps the server root focused on application startup and capability folders, while the named export preserves a short import from `server/index.ts`.

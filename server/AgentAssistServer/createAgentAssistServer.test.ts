@@ -1,10 +1,10 @@
 import type { Server } from "node:http";
 import type { AddressInfo } from "node:net";
-import type { SupportReplyGenerator } from "./supportReplies";
+import type { SupportReplyGenerator } from "../supportReplies";
 import { createSseParser } from "streaming";
 import { afterEach, describe, expect, it, vi } from "vitest";
 import { createAgentAssistServer } from "./createAgentAssistServer";
-import { createGraphQLHandler } from "./graphql";
+import { createGraphQLHandler } from "../graphql";
 
 const servers: Server[] = [];
 

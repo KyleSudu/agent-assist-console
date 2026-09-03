@@ -1,6 +1,6 @@
 import "dotenv/config";
 import { loadServerConfig } from "./config";
-import { createAgentAssistServer } from "./createAgentAssistServer";
+import { createAgentAssistServer } from "./AgentAssistServer";
 import { createGraphQLHandler } from "./graphql";
 import { createConfiguredSupportReplyGenerator } from "./supportReplies";
 
