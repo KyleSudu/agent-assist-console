@@ -21,6 +21,38 @@ const renderPanel = (state: DraftState) => {
 };
 
 describe("DraftPanel", () => {
+  it("keeps keyboard focus on the control when generation starts", async () => {
+    const user = userEvent.setup();
+    const onStop = vi.fn();
+    const props = {
+      state: initialDraftState,
+      onGenerate: vi.fn(),
+      onStop,
+      onEdit: vi.fn(),
+      onApprove: vi.fn(),
+    };
+    const { rerender } = render(<DraftPanel {...props} />);
+
+    screen.getByRole("button", { name: "Draft reply" }).focus();
+    rerender(
+      <DraftPanel
+        {...props}
+        state={{
+          ...initialDraftState,
+          phase: "streaming",
+          requestId: "request-1",
+          announcement: "Generating suggested reply.",
+        }}
+      />,
+    );
+
+    const stopButton = screen.getByRole("button", { name: "Stop generating" });
+    expect(stopButton).toHaveFocus();
+
+    await user.keyboard("{Enter}");
+    expect(onStop).toHaveBeenCalledOnce();
+  });
+
   it("starts generation from the idle state", async () => {
     const user = userEvent.setup();
     const props = renderPanel(initialDraftState);

@@ -514,3 +514,11 @@ The remaining server factory and its integration test moved into `AgentAssistSer
 The frontend now has an `ApolloClient` configured with an `HttpLink` to `/graphql` and an `InMemoryCache`. `ApolloProvider` places that client in React context, allowing descendant components to use GraphQL hooks without importing a singleton into each component.
 
 The first `Tickets` operation is represented as a typed document, but no component executes it yet. Keeping query definition separate from query execution gives the next change a narrow goal: replace the frontend's direct fixture import with data returned by `useQuery`.
+
+## 2026-09-03 — Testing accessibility across time
+
+Keyboard access and streaming behavior are related but different concerns. Native controls and logical focus order make the workflow operable without a pointer; stable focus on the Draft/Stop button makes cancellation immediately available after generation starts.
+
+Streaming also changes content repeatedly without moving focus. The visual draft can update incrementally, but its text is deliberately excluded from the ARIA live region. A single polite, atomic status instead announces lifecycle milestones such as generation starting, stopping, and becoming ready. Reduced-motion buffering lowers visual update frequency without changing the network protocol.
+
+The validation strategy therefore combines focused component tests for keyboard behavior, axe-core audits at meaningful browser states, and a manual VoiceOver/Safari checklist. Automated scans cannot judge whether a stream of speech is understandable, so the project records them as evidence rather than proof of WCAG conformance.

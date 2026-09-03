@@ -35,6 +35,24 @@ const ticketsMock = {
 };
 
 describe("App", () => {
+  it("presents the primary controls in a logical keyboard order", async () => {
+    const user = userEvent.setup();
+
+    render(
+      <MockedProvider mocks={[ticketsMock]}>
+        <App />
+      </MockedProvider>,
+    );
+
+    const ticketSelector = await screen.findByLabelText("Select a synthetic ticket");
+
+    await user.tab();
+    expect(ticketSelector).toHaveFocus();
+
+    await user.tab();
+    expect(screen.getByRole("button", { name: "Draft reply" })).toHaveFocus();
+  });
+
   it("loads tickets through GraphQL and allows ticket selection", async () => {
     const user = userEvent.setup();
 
