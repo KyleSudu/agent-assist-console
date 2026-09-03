@@ -508,3 +508,9 @@ Adding a second API style made the original server file's mixed responsibilities
 The extraction follows capability boundaries rather than placing every helper in its own file. `readJson`, `sendEvent`, and `canWrite` are implementation details used only by the draft-stream handler, so keeping them colocated makes that behavior easier to trace without creating a directory full of tiny abstractions.
 
 The remaining server factory and its integration test moved into `AgentAssistServer/` with a local `index.ts`. Colocating the test with the factory keeps the server root focused on application startup and capability folders, while the named export preserves a short import from `server/index.ts`.
+
+### Configuring the Apollo boundary
+
+The frontend now has an `ApolloClient` configured with an `HttpLink` to `/graphql` and an `InMemoryCache`. `ApolloProvider` places that client in React context, allowing descendant components to use GraphQL hooks without importing a singleton into each component.
+
+The first `Tickets` operation is represented as a typed document, but no component executes it yet. Keeping query definition separate from query execution gives the next change a narrow goal: replace the frontend's direct fixture import with data returned by `useQuery`.
