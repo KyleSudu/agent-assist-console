@@ -4,7 +4,7 @@
 
 An independent technical prototype exploring how a support-agent workstation should present streamed generative AI output to keyboard and screen-reader users.
 
-> **Status:** Pre-v0 portfolio work. The project uses synthetic data and deterministic generation while the interaction model is being developed. It is not a production service and is not affiliated with any company or support platform.
+> **Status:** v0 shipped; v1 is in progress. The project uses synthetic data and is an independent learning prototype, not a production service or an official integration with any company or support platform.
 
 ## Preview
 
@@ -33,6 +33,8 @@ The repository currently contains a working vertical slice:
 - Four synthetic customer-support tickets
 - A React and strict TypeScript interface
 - A separate Node API process
+- GraphQL Yoga ticket queries with Apollo Client caching
+- Operation types generated from the GraphQL schema and client query
 - A typed server-sent event protocol
 - Deterministic or model-backed incremental reply generation
 - Request cancellation and stale-response protection
@@ -41,6 +43,7 @@ The repository currently contains a working vertical slice:
 - Milestone-only screen-reader status messages
 - Unit tests for reducer behavior, stream parsing, and ticket selection
 - Chrome end-to-end coverage for the critical draft-review journey
+- Keyboard/focus tests and axe-core audits of the loaded, ready, and approved states
 
 The deterministic generator remains the default. It makes the interaction reproducible and keeps routine development and automated tests independent of external services. Anthropic and OpenAI adapters can be selected explicitly for model-backed generation.
 
@@ -48,9 +51,15 @@ The deterministic generator remains the default. It makes the interaction reprod
 
 ```text
 React interface
+  -> Apollo Client
+     -> POST /graphql
+     -> GraphQL Yoga
+     -> ticket resolver
+     -> synthetic ticket source
   -> streaming fetch client
-  -> typed SSE parser
-  -> reducer-driven draft state
+     -> POST /api/drafts/stream
+     -> typed SSE parser
+     -> reducer-driven draft state
 
 Node API
   -> validates the ticket and request id
@@ -146,7 +155,7 @@ The remote branch also passes through [`buildDraftPrompt.ts`](server/supportRepl
 
 The stream uses an HTTP `POST` with an SSE-formatted response. The browser reads it through `fetch()` and `ReadableStream` rather than `EventSource`, because the request includes a ticket payload.
 
-GraphQL is intentionally not used for the token stream. A later iteration will use GraphQL and Apollo for discrete ticket, draft, and approval entities while leaving high-frequency generation updates on the streaming transport.
+GraphQL and Apollo handle structured, cacheable ticket data. GraphQL is intentionally not used for token deltas: high-frequency generation updates remain on the streaming transport instead of repeatedly rewriting Apollo's normalized cache. Later v1 work will persist completed drafts and approval status as application entities.
 
 ## Run locally
 
@@ -182,26 +191,35 @@ Use `DRAFT_PROVIDER=anthropic` for the Anthropic adapter. Keep secrets in `.env`
 
 ```bash
 npm run typecheck
+npm run codegen:check
 npm test
 npm run test:e2e
 npm run build
 ```
 
+Accessibility evidence, the manual keyboard procedure, and the remaining VoiceOver/Safari check are recorded in [`docs/ACCESSIBILITY.md`](docs/ACCESSIBILITY.md).
+
 ## Roadmap
 
-### v0 - accessible generative streaming
+### v0 - accessible generative streaming — shipped
 
-- Expand browser-level coverage for keyboard and focus behavior
+- Stream deterministic or model-backed drafts through a typed SSE protocol
+- Preserve stable focus, cancellation, partial drafts, editing, and approval
+- Buffer visual updates when reduced motion is preferred
+- Cover keyboard/focus behavior and meaningful UI states with automated tests
+
+Ongoing validation and hardening:
+
 - Add application-level request and token budgets for model-backed generation
 - Test repeated cancellation for orphaned requests and late updates
 - Document VoiceOver/Safari and NVDA/Firefox behavior
 - Publish an accessibility writeup and short demonstration
 
-### v1 - typed application data
+### v1 - typed application data — in progress
 
-- Add GraphQL Yoga, Apollo Client, and generated operation types
+- ✅ Add GraphQL Yoga, Apollo Client, and generated operation types
+- ✅ Keep token streaming outside Apollo's normalized cache
 - Persist tickets, completed drafts, and approval status
-- Keep token streaming outside Apollo's normalized cache
 
 ### v2 - confidence-driven review
 
