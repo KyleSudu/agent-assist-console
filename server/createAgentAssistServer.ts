@@ -2,8 +2,11 @@ import { createServer, type IncomingMessage, type ServerResponse } from "node:ht
 import type { SupportReplyGenerator } from "./supportReplies";
 import { getTicket, type DraftStreamEvent, type GenerateDraftRequest } from "shared";
 
+type RequestHandler = (request: IncomingMessage, response: ServerResponse) => void | Promise<void>;
+
 type AgentAssistServerOptions = {
   supportReplyGenerator: SupportReplyGenerator;
+  graphqlHandler?: RequestHandler;
   reportError?: (error: unknown) => void;
 };
 
@@ -33,6 +36,7 @@ const sendEvent = (response: ServerResponse, event: DraftStreamEvent) => {
  */
 export const createAgentAssistServer = ({
   supportReplyGenerator,
+  graphqlHandler,
   reportError = console.error,
 }: AgentAssistServerOptions) => {
   const streamDraft = async (request: IncomingMessage, response: ServerResponse) => {
@@ -99,6 +103,11 @@ export const createAgentAssistServer = ({
 
     if (request.method === "POST" && request.url === "/api/drafts/stream") {
       await streamDraft(request, response);
+      return;
+    }
+
+    if (request.url?.startsWith("/graphql") && graphqlHandler) {
+      await graphqlHandler(request, response);
       return;
     }
 

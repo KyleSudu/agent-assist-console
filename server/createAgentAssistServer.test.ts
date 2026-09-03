@@ -4,11 +4,16 @@ import type { SupportReplyGenerator } from "./supportReplies";
 import { createSseParser } from "streaming";
 import { afterEach, describe, expect, it, vi } from "vitest";
 import { createAgentAssistServer } from "./createAgentAssistServer";
+import { createGraphQLHandler } from "./graphql";
 
 const servers: Server[] = [];
 
 const startServer = async (supportReplyGenerator: SupportReplyGenerator, reportError = vi.fn()) => {
-  const server = createAgentAssistServer({ supportReplyGenerator, reportError });
+  const server = createAgentAssistServer({
+    supportReplyGenerator,
+    graphqlHandler: createGraphQLHandler(),
+    reportError,
+  });
   servers.push(server);
   await new Promise<void>((resolve) => server.listen(0, "127.0.0.1", resolve));
   const { port } = server.address() as AddressInfo;
@@ -51,6 +56,33 @@ afterEach(async () => {
 });
 
 describe("createAgentAssistServer", () => {
+  it("serves ticket queries through GraphQL", async () => {
+    const generator: SupportReplyGenerator = {
+      async *generate() {
+        yield "Unused reply";
+      },
+    };
+    const { url } = await startServer(generator);
+
+    const response = await fetch(`${url}/graphql`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        query: "{ tickets { id subject } }",
+      }),
+    });
+    const body = (await response.json()) as {
+      data: { tickets: Array<{ id: string; subject: string }> };
+    };
+
+    expect(response.status).toBe(200);
+    expect(body.data.tickets).toHaveLength(4);
+    expect(body.data.tickets[0]).toEqual({
+      id: "billing-duplicate-charge",
+      subject: "Duplicate charge after changing reservation",
+    });
+  });
+
   it("streams a sanitized error when generation fails before text", async () => {
     const providerError = new Error("secret provider detail");
     const generator: SupportReplyGenerator = {

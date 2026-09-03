@@ -486,3 +486,17 @@ The local verification commands now run automatically on pushes to `main` and on
 The two jobs are independent so fast source-quality failures and slower browser-integration failures are reported separately. The Cypress job uses no model secret and cannot incur provider charges; `DRAFT_PROVIDER=fixture` is explicit at the job boundary.
 
 The workflow grants only read access to repository contents. No deployment, package publication, Cypress Cloud recording, or write token is needed for this verification stage.
+
+## 2026-09-02 — Separating the GraphQL tools by responsibility
+
+The GraphQL implementation introduced three tools that are easy to conflate at first:
+
+```text
+Express/Fastify → general-purpose HTTP server framework
+GraphQL Yoga    → GraphQL-focused server framework
+Apollo Client   → frontend GraphQL request and caching library
+```
+
+The project already has a small Node HTTP server, so Yoga is not being introduced as a replacement for the backend. It combines the schema and resolvers, validates incoming GraphQL operations, executes the requested fields, and formats the response at `/graphql`. Apollo Client will later send operations from React and cache the returned application entities.
+
+This boundary also reinforces why the AI stream remains separate. Yoga and Apollo handle structured, cacheable ticket and approval data; the existing HTTP/SSE route continues carrying transient text deltas.
