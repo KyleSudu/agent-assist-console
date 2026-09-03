@@ -500,3 +500,9 @@ Apollo Client   → frontend GraphQL request and caching library
 The project already has a small Node HTTP server, so Yoga is not being introduced as a replacement for the backend. It combines the schema and resolvers, validates incoming GraphQL operations, executes the requested fields, and formats the response at `/graphql`. Apollo Client will later send operations from React and cache the returned application entities.
 
 This boundary also reinforces why the AI stream remains separate. Yoga and Apollo handle structured, cacheable ticket and approval data; the existing HTTP/SSE route continues carrying transient text deltas.
+
+### Extracting the draft-stream capability
+
+Adding a second API style made the original server file's mixed responsibilities obvious. The route table remains in `createAgentAssistServer`, while request parsing, ticket validation, SSE formatting, cancellation, and provider-error handling now live together in `draftStream/createDraftStreamHandler.ts`.
+
+The extraction follows capability boundaries rather than placing every helper in its own file. `readJson`, `sendEvent`, and `canWrite` are implementation details used only by the draft-stream handler, so keeping them colocated makes that behavior easier to trace without creating a directory full of tiny abstractions.
