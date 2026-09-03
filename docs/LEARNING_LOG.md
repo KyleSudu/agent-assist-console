@@ -478,3 +478,11 @@ The high-level sequence explains system behavior, but it does not answer the pra
 The trace separates startup composition from runtime execution. Configuration and provider selection run once when the API starts; an individual draft request uses the already-injected `SupportReplyGenerator`. This avoids implying that the request handler repeatedly reads configuration or chooses a provider for every text delta.
 
 The response path also demonstrates why a network chunk is not the same thing as an application event. `streamDraft.ts` reads arbitrary bytes, `parseSse.ts` reconstructs complete SSE messages, and only then does `useDraftWorkspace.ts` decide whether a delta should reach the reducer immediately or pass through the reduced-motion buffer.
+
+## 2026-09-02 — Making verification visible with CI
+
+The local verification commands now run automatically on pushes to `main` and on pull requests. The quality job installs from the lockfile, checks formatting and linting, runs the Vitest suite, and creates a production build. A separate Cypress job starts both local processes with the fixture provider and runs the critical user journey in Chrome.
+
+The two jobs are independent so fast source-quality failures and slower browser-integration failures are reported separately. The Cypress job uses no model secret and cannot incur provider charges; `DRAFT_PROVIDER=fixture` is explicit at the job boundary.
+
+The workflow grants only read access to repository contents. No deployment, package publication, Cypress Cloud recording, or write token is needed for this verification stage.

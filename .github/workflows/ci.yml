@@ -1,0 +1,59 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+permissions:
+  contents: read
+
+jobs:
+  quality:
+    name: Quality checks
+    runs-on: ubuntu-24.04
+    timeout-minutes: 10
+
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v7
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v7
+        with:
+          node-version: 22
+          cache: npm
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Check formatting
+        run: npm run format:check
+
+      - name: Lint
+        run: npm run lint
+
+      - name: Run unit and integration tests
+        run: npm test
+
+      - name: Build
+        run: npm run build
+
+  e2e:
+    name: Cypress happy path
+    runs-on: ubuntu-24.04
+    timeout-minutes: 10
+    env:
+      DRAFT_PROVIDER: fixture
+
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v7
+
+      - name: Run Cypress in Chrome
+        uses: cypress-io/github-action@v7
+        with:
+          browser: chrome
+          start: npm run dev
+          wait-on: http://127.0.0.1:5173
+          wait-on-timeout: 60

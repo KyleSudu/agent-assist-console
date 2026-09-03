@@ -1,5 +1,7 @@
 # Accessible Agent-Assist Console
 
+[![CI](https://github.com/KyleSudu/agent-assist-console/actions/workflows/ci.yml/badge.svg)](https://github.com/KyleSudu/agent-assist-console/actions/workflows/ci.yml)
+
 An independent technical prototype exploring how a support-agent workstation should present streamed generative AI output to keyboard and screen-reader users.
 
 > **Status:** Pre-v0 portfolio work. The project uses synthetic data and deterministic generation while the interaction model is being developed. It is not a production service and is not affiliated with any company or support platform.
@@ -38,6 +40,7 @@ The repository currently contains a working vertical slice:
 - Editing and approval of partial or completed drafts
 - Milestone-only screen-reader status messages
 - Unit tests for reducer behavior, stream parsing, and ticket selection
+- Chrome end-to-end coverage for the critical draft-review journey
 
 The deterministic generator remains the default. It makes the interaction reproducible and keeps routine development and automated tests independent of external services. Anthropic and OpenAI adapters can be selected explicitly for model-backed generation.
 
